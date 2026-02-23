@@ -221,6 +221,8 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <div class="mbtn-row" style="margin-top:12px"><button class="mbtn cancel" onclick="closeExport()">닫기</button></div>
 </div></div>
 </div>
+
+<script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
 import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
@@ -298,27 +300,28 @@ window.syncData=async function(){
   var btn=document.getElementById('syncBtn');
   btn.classList.add('spinning');showStatus('☁️ 동기화 중...','warn');
   try{
+    // Ensure auth
+    if(!auth.currentUser){
+      showStatus('🔐 로그인 중...','warn');
+      await signInAnonymously(auth);
+    }
     // 1. Upload local places to Firebase
     var localPlaces=lsGet(LS_PLACES)||[];
-    // Clear Firebase places
     var oldSnap=await getDocs(collection(db,PCOL));
     var deletes=[];oldSnap.forEach(d=>{deletes.push(deleteDoc(doc(db,PCOL,d.id)));});
-    await Promise.all(deletes);
-    // Write all local places
-    var newPlaces=[];
+    if(deletes.length)await Promise.all(deletes);
     for(const p of localPlaces){
       var pCopy={...p};delete pCopy.id;
-      var ref=await addDoc(collection(db,PCOL),pCopy);
-      newPlaces.push({...pCopy,id:ref.id});
+      await addDoc(collection(db,PCOL),pCopy);
     }
     // 2. Upload local itinerary to Firebase
     var localDays=lsGet(LS_DAYS)||[];
     for(const d of localDays){
-      var dCopy={...d};delete dCopy._transit;
+      var dCopy={...d};
       if(dCopy.stops)dCopy.stops=dCopy.stops.map(s=>{var c={...s};delete c._transit;return c;});
       await setDoc(doc(db,ICOL,'day'+d.day),dCopy);
     }
-    // 3. Download Firebase → Local (to get server IDs)
+    // 3. Download Firebase → Local (get server IDs + others' changes)
     var pSnap=await getDocs(collection(db,PCOL));
     var fbPlaces=[];pSnap.forEach(d=>{fbPlaces.push({id:d.id,...d.data()});});
     fbPlaces.sort((a,b)=>(b.rating||0)-(a.rating||0));
@@ -330,9 +333,11 @@ window.syncData=async function(){
     lsSet(LS_PLACES,fbPlaces);lsSet(LS_DAYS,fbDays);
     window._places=fbPlaces;window._days=fbDays;
     window.renderDays();window.renderItinList();window.renderPlaces();window.updateItinMap();
-    showStatus('✅ 동기화 완료 · '+new Date().toLocaleTimeString('ko'),'ok');
+    var t=new Date();
+    showStatus('✅ 동기화 완료 · '+t.getHours()+':'+String(t.getMinutes()).padStart(2,'0'),'ok');
   }catch(e){
-    console.error(e);showStatus('❌ 동기화 실패 · 오프라인 모드','err');
+    console.error('Sync error:',e);
+    showStatus('❌ 동기화 실패: '+(e.message||'네트워크 오류'),'err');
   }
   btn.classList.remove('spinning');
 };
