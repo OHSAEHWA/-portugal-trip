@@ -6,7 +6,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>포르투갈 8일 여행</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#101820;--card:#1a2535;--acc:#e8a838;--tx:#eae8e3;--dm:#7a8a9a;--bl:#3b82f6;--gn:#22c55e;--pp:#a855f7;--rd:#ef4444;--or:#f59e0b;--tl:#14b8a6}
@@ -54,18 +53,12 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 .ti.tram{background:rgba(245,158,11,.12);color:var(--or)}
 .ti.train{background:rgba(20,184,166,.12);color:var(--tl)}
 .tt{font-size:11px;color:var(--dm);line-height:1.45}.tt b{color:var(--tx);font-weight:600}
-.lgd{position:absolute;bottom:16px;left:12px;right:12px;z-index:500;display:flex;gap:12px;justify-content:center;background:rgba(16,24,32,.9);backdrop-filter:blur(8px);border-radius:10px;padding:8px 16px;border:1px solid rgba(255,255,255,.06)}
+.lgd{position:absolute;bottom:16px;left:12px;right:12px;z-index:5;display:flex;gap:12px;justify-content:center;background:rgba(16,24,32,.9);backdrop-filter:blur(8px);border-radius:10px;padding:8px 16px;border:1px solid rgba(255,255,255,.06)}
 .lgd span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dm)}
 .lgd i{width:9px;height:9px;border-radius:50%;display:inline-block}
-.leaflet-container{background:var(--bg)!important}
-.cm{display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:700;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.4);border:2px solid #fff;width:32px;height:32px;text-align:center}
-.cm.s{background:var(--bl)}.cm.f{background:var(--gn)}.cm.t{background:var(--pp)}
-.leaflet-popup-content-wrapper{background:var(--card)!important;color:var(--tx)!important;border-radius:10px!important;border:1px solid rgba(255,255,255,.1)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
-.leaflet-popup-tip{background:var(--card)!important}
-.leaflet-popup-content{font-family:'Noto Sans KR',sans-serif!important;font-size:12px!important;margin:10px 14px!important;line-height:1.5!important}
-.leaflet-popup-content h3{font-size:14px;margin-bottom:4px}
-.leaflet-popup-content .p2{color:var(--dm);margin-bottom:2px}
-.leaflet-control-zoom a{background:var(--card)!important;color:var(--tx)!important;border-color:rgba(255,255,255,.1)!important}
+.gm-style-iw{max-width:280px!important}
+.iw{font-family:'Noto Sans KR',sans-serif;padding:2px}
+.iw h3{font-size:14px;margin-bottom:3px;color:#222}.iw .sub{font-size:11px;color:#888;margin-bottom:4px}.iw p{font-size:12px;color:#555;line-height:1.5;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -80,15 +73,13 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <span><i style="background:var(--bl)"></i>관광</span>
 <span><i style="background:var(--gn)"></i>맛집</span>
 <span><i style="background:var(--pp)"></i>교통</span>
-<span><i style="background:0;border:2px solid var(--acc);width:7px;height:7px;border-radius:50%"></i>동선</span>
+<span><i style="background:0;border:2px solid var(--acc);width:7px;height:7px;border-radius:50%"></i>경로</span>
 </div></div>
 </div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
 <script>
-// ===== DATA =====
 var D=[
-// Day 1
-{day:1,title:"포르투 Day 1",sub:"구시가지 핵심 탐방",city:"포르투",desc:"포르투의 핵심 랜드마크를 천천히 걸으며 첫인상을 느껴보세요.",
+{day:1,title:"포르투 Day 1",sub:"구시가지 핵심 탐방",city:"포르투",desc:"포르투의 핵심 랜드마크를 천천히 걸으며 첫인상을 느껴보세요.",tmode:"WALKING",
 stops:[
 {n:1,t:"sight",kr:"상벤투 기차역",en:"Estação São Bento",lat:41.145492,lng:-8.609544,tm:"10:00",dur:"30분",rt:"4.7",note:"아줄레주 타일 벽화가 압권! 2만 개의 푸른 타일이 포르투갈 역사를 담고 있어요."},
 {n:2,t:"sight",kr:"포르투 대성당",en:"Sé do Porto",lat:41.142853,lng:-8.611116,tm:"10:45",dur:"45분",rt:"4.6",pr:"€4",note:"12세기 로마네스크 성당. 타워 위 360도 전망 훌륭. 고딕 회랑 아줄레주 필수!"},
@@ -104,8 +95,7 @@ tr:[
 {f:4,to:5,m:"walk",ic:"🚶",tx:"도보 7분",dt:"식후 소화 겸 오르막. R. dos Clérigos."},
 {f:5,to:6,m:"walk",ic:"🚶",tx:"도보 2분",dt:"클레리구스 탑 바로 옆!"},
 {f:6,to:7,m:"walk",ic:"🚶",tx:"도보 5분",dt:"Rua das Taipas 방향."}]},
-// Day 2
-{day:2,title:"포르투 Day 2",sub:"포트 와인 & 가이아",city:"포르투",desc:"도우로 강을 건너 가이아 와인 셀러 탐방 후 정원에서 석양을.",
+{day:2,title:"포르투 Day 2",sub:"포트 와인 & 가이아",city:"포르투",desc:"도우로 강을 건너 가이아 와인 셀러를 탐방하고 정원에서 석양을.",tmode:"WALKING",
 stops:[
 {n:1,t:"sight",kr:"돔 루이스 1세 다리",en:"Ponte Dom Luís I",lat:41.139959,lng:-8.609449,tm:"10:00",dur:"30분",rt:"4.8",note:"상층으로 걸어서! 포르투 최고 파노라마 뷰."},
 {n:2,t:"sight",kr:"Fonseca 와인 셀러",en:"Fonseca Port Cellars",lat:41.1354472,lng:-8.614342,tm:"10:45",dur:"75분",pr:"€10~",note:"셀프 가이드 투어. 20년산 토니 포트 일품."},
@@ -119,19 +109,17 @@ tr:[
 {f:3,to:4,m:"walk",ic:"🚶",tx:"도보 20분",dt:"다리 하층 포르투 복귀. 또는 케이블카(€7)."},
 {f:4,to:5,m:"bus",ic:"🚌",tx:"버스 500번 15분",dt:"Palácio de Cristal 하차. 또는 도보 25분."},
 {f:5,to:6,m:"walk",ic:"🚶",tx:"도보 15분",dt:"정원에서 구시가지 방향."}]},
-// Day 3
-{day:3,title:"포르투 Day 3",sub:"볼사 궁전 & 마지막",city:"포르투",desc:"놓친 명소 후 포르투를 여유롭게 마무리.",
+{day:3,title:"포르투 Day 3",sub:"볼사 궁전 & 마지막",city:"포르투",desc:"놓친 명소 후 포르투를 여유롭게 마무리.",tmode:"WALKING",
 stops:[
 {n:1,t:"sight",kr:"볼사 궁전",en:"Palácio da Bolsa",lat:41.1413772,lng:-8.615672,tm:"10:00",dur:"60분",rt:"4.5",pr:"€13",note:"아랍의 방 압권! 가이드 투어만. 일찍 가서 예약."},
 {n:2,t:"sight",kr:"비르투데스 공원",en:"Parque das Virtudes",lat:41.1447,lng:-8.618988,tm:"11:30",dur:"45분",rt:"4.6",pr:"무료",note:"현지인 숨은 명소. 도우로 강 전경."},
 {n:3,t:"food",kr:"🍽️ Brasão Aliados (점심)",en:"Brasão Aliados",lat:41.1491541,lng:-8.6117884,tm:"12:45",dur:"75분",rt:"4.6",pr:"€€",note:"프란세지냐 맛집! 3/4 사이즈 1인 충분."},
-{n:4,t:"food",kr:"🍽️ A Despensa (저녁)",en:"A Despensa",lat:41.147249,lng:-8.613547,tm:"19:30",dur:"90분",rt:"4.8",pr:"€€",cl:"월",note:"포르투 최고 파스타! 라자냐 미쉐린급. 19시 오픈."}],
+{n:4,t:"food",kr:"🍽️ A Despensa (저녁)",en:"A Despensa",lat:41.147249,lng:-8.613547,tm:"19:30",dur:"90분",rt:"4.8",pr:"€€",cl:"월",note:"포르투 최고 파스타! 라자냐 미쉐린급."}],
 tr:[
 {f:1,to:2,m:"walk",ic:"🚶",tx:"도보 10분",dt:"리베이라에서 언덕 위로."},
 {f:2,to:3,m:"walk",ic:"🚶",tx:"도보 12분",dt:"Aliados 광장 방향. 내리막."},
-{f:3,to:4,m:"walk",ic:"🚶",tx:"도보 7분",dt:"오후 자유 후 저녁. Santa Catarina 쇼핑 추천."}]},
-// Day 4
-{day:4,title:"리스본 Day 1",sub:"알파마 & 성",city:"리스본",desc:"리스본 도착! 알파마 골목을 거닐어 보세요.",
+{f:3,to:4,m:"walk",ic:"🚶",tx:"도보 7분",dt:"오후 자유 후 저녁."}]},
+{day:4,title:"리스본 Day 1",sub:"알파마 & 성",city:"리스본",desc:"리스본 도착! 알파마 골목을 거닐어 보세요.",tmode:"WALKING",
 stops:[
 {n:1,t:"transport-marker",kr:"🚆 포르투→리스본",en:"AP Train Campanhã→S.Apolónia",lat:38.714,lng:-9.123,tm:"07:30",dur:"약 3시간",pr:"€25~35",note:"Campanhã역 AP고속열차. cp.pt 사전 예매 추천."},
 {n:2,t:"sight",kr:"리스본 대성당",en:"Sé de Lisboa",lat:38.709834,lng:-9.132954,tm:"11:30",dur:"45분",rt:"4.4",pr:"무료",note:"1147년 리스본 최고(最古) 성당."},
@@ -145,8 +133,7 @@ tr:[
 {f:3,to:4,m:"walk",ic:"🚶",tx:"도보 15분",dt:"성에서 알파마 골목 따라."},
 {f:4,to:5,m:"walk",ic:"🚶",tx:"도보 15분",dt:"Martim Moniz 광장으로."},
 {f:5,to:6,m:"tram",ic:"🚃",tx:"트램28+도보",dt:"Bairro Alto 하차 후 도보 5분."}]},
-// Day 5
-{day:5,title:"리스본 Day 2",sub:"벨렝 지구",city:"리스본",desc:"대항해시대의 영광. 에그타르트 잊지 마세요!",
+{day:5,title:"리스본 Day 2",sub:"벨렝 지구",city:"리스본",desc:"대항해시대의 영광. 에그타르트 잊지 마세요!",tmode:"WALKING",
 stops:[
 {n:1,t:"food",kr:"🍽️ 파스테이스 드 벨렝",en:"Pastéis de Belém",lat:38.6975105,lng:-9.203228,tm:"09:00",dur:"45분",rt:"4.6",pr:"€",note:"원조 에그타르트! 아침에 줄 짧아요."},
 {n:2,t:"sight",kr:"제로니무스 수도원",en:"Mosteiro dos Jerónimos",lat:38.6978909,lng:-9.206704,tm:"10:00",dur:"90분",rt:"4.5",pr:"€10",cl:"월",note:"마누엘 양식 걸작! 온라인 예약 강추."},
@@ -159,8 +146,7 @@ tr:[
 {f:2,to:3,m:"walk",ic:"🚶",tx:"도보 15분",dt:"강변 서쪽. 발견기념비 경유."},
 {f:3,to:4,m:"tram",ic:"🚃",tx:"트램15E 약 25분",dt:"벨렝→Cais do Sodré. 역 옆."},
 {f:4,to:5,m:"walk",ic:"🚶",tx:"도보 15분",dt:"강변 동쪽으로."}]},
-// Day 6
-{day:6,title:"리스본 Day 3",sub:"신트라 당일치기",city:"신트라",desc:"동화 속 궁전! 리스본에서 기차 40분.",
+{day:6,title:"리스본 Day 3",sub:"신트라 당일치기",city:"신트라",desc:"동화 속 궁전! 리스본에서 기차 40분.",tmode:"DRIVING",
 stops:[
 {n:1,t:"transport-marker",kr:"🚆 리스본→신트라",en:"Rossio→Sintra 기차",lat:38.798,lng:-9.381,tm:"08:30",dur:"40분",pr:"€2.30",note:"Rossio역 출발. 15~30분 간격."},
 {n:2,t:"sight",kr:"페나 궁전",en:"Palácio Nacional da Pena",lat:38.7875851,lng:-9.3906089,tm:"10:00",dur:"150분",rt:"4.4",pr:"€14~20",note:"온라인 예약 필수. 편한 신발!"},
@@ -168,8 +154,7 @@ stops:[
 tr:[
 {f:1,to:2,m:"bus",ic:"🚌",tx:"버스 434번 ~20분",dt:"신트라역 앞 탑승. 왕복 티켓."},
 {f:2,to:3,m:"bus",ic:"🚌",tx:"버스 434번 ~20분",dt:"궁전→신트라역."}]},
-// Day 7
-{day:7,title:"리스본 Day 4",sub:"바이샤 & 시아두",city:"리스본",desc:"리스본 중심부 쇼핑과 문화를 여유롭게.",
+{day:7,title:"리스본 Day 4",sub:"바이샤 & 시아두",city:"리스본",desc:"리스본 중심부 쇼핑과 문화를 여유롭게.",tmode:"WALKING",
 stops:[
 {n:1,t:"sight",kr:"카르무 고고학 박물관",en:"Museu Arqueológico do Carmo",lat:38.712038,lng:-9.140613,tm:"10:30",dur:"60분",rt:"4.5",pr:"€5",cl:"일",note:"1755년 대지진 고딕 수도원. 지붕 없는 성당!"},
 {n:2,t:"food",kr:"🍽️ Lisbon Tu e Eu",en:"Lisboa Tu & Eu",lat:38.710951,lng:-9.130052,tm:"12:30",dur:"75분",rt:"4.5",pr:"€",note:"가성비 로컬 맛집. 오징어+감자, 상그리아."},
@@ -177,125 +162,123 @@ stops:[
 tr:[
 {f:1,to:2,m:"walk",ic:"🚶",tx:"도보 15분",dt:"시아두→Baixa 쇼핑거리 경유."},
 {f:2,to:3,m:"metro",ic:"🚇",tx:"메트로 Green 10분",dt:"Baixa-Chiado→Intendente, 도보 5분."}]},
-// Day 8
-{day:8,title:"리스본 Day 5",sub:"수족관 & 마지막 미식",city:"리스본",desc:"유럽 최대 수족관 후 최고의 식사로 피날레!",
+{day:8,title:"리스본 Day 5",sub:"수족관 & 마지막 미식",city:"리스본",desc:"유럽 최대 수족관 후 최고의 식사로 피날레!",tmode:"TRANSIT",
 stops:[
 {n:1,t:"sight",kr:"리스본 오세아나리움",en:"Oceanário de Lisboa",lat:38.7635435,lng:-9.0937415,tm:"10:00",dur:"180분",rt:"4.7",pr:"€25~29",note:"유럽 최대 수족관! 해달+해파리관 3~4시간."},
 {n:2,t:"food",kr:"🍽️ Augusto Lisboa",en:"Augusto Lisboa",lat:38.714425,lng:-9.130207,tm:"14:30",dur:"75분",rt:"4.8",pr:"€€",note:"트렌디 브런치. 스크램블에그, 팬케이크 강추."},
 {n:3,t:"food",kr:"🍽️ Copo de Mar (피날레)",en:"Copo de Mar",lat:38.739801,lng:-9.149103,tm:"19:30",dur:"90분",rt:"4.8",pr:"€€",cl:"일",note:"여행 피날레! 대구·문어 환상. 예약 필수!"}],
 tr:[
 {f:0,to:1,m:"metro",ic:"🚇",tx:"메트로 Red Line",dt:"Oriente역 하차, 도보 10분."},
-{f:1,to:2,m:"metro",ic:"🚇",tx:"메트로 약 25분",dt:"Oriente→Alameda 환승→Green→Baixa-Chiado."},
+{f:1,to:2,m:"metro",ic:"🚇",tx:"메트로 약 25분",dt:"Oriente→Alameda→Green→Baixa-Chiado."},
 {f:2,to:3,m:"metro",ic:"🚇",tx:"메트로+도보 20분",dt:"Baixa-Chiado→São Sebastião. 또는 택시 €5."}]}
 ];
 
-// ===== STATE =====
-var cur=0, sel=null, mp, mks=[], pl, extras=[];
+var cur=0,sel=null,gmap,gmks=[],iw,dRenderer,dService;
+var darkStyle=[
+{elementType:"geometry",stylers:[{color:"#1d2c3a"}]},
+{elementType:"labels.text.stroke",stylers:[{color:"#1a2636"}]},
+{elementType:"labels.text.fill",stylers:[{color:"#746855"}]},
+{featureType:"administrative.locality",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},
+{featureType:"poi",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},
+{featureType:"poi.park",elementType:"geometry",stylers:[{color:"#1a3325"}]},
+{featureType:"road",elementType:"geometry",stylers:[{color:"#2a3f54"}]},
+{featureType:"road",elementType:"labels.text.fill",stylers:[{color:"#9ca5b3"}]},
+{featureType:"road.highway",elementType:"geometry",stylers:[{color:"#3a5169"}]},
+{featureType:"transit",elementType:"geometry",stylers:[{color:"#2f4357"}]},
+{featureType:"transit.station",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},
+{featureType:"water",elementType:"geometry",stylers:[{color:"#0e1d2b"}]},
+{featureType:"water",elementType:"labels.text.fill",stylers:[{color:"#515c6d"}]}
+];
 
-// ===== RENDER DAYS =====
-function rd(){
-  document.getElementById('dy').innerHTML=D.map(function(d,i){
-    return '<button class="db'+(i===cur?' on':'')+'" onclick="pd('+i+')">D'+d.day+' <span class="c">'+d.city+'</span></button>';
-  }).join('');
-}
+function rd(){document.getElementById('dy').innerHTML=D.map(function(d,i){return '<button class="db'+(i===cur?' on':'')+'" onclick="pd('+i+')">D'+d.day+' <span class="c">'+d.city+'</span></button>';}).join('');}
 
-// ===== RENDER LIST =====
 function rl(){
-  var d=D[cur], h='<div class="dh"><h2>'+d.title+' — '+d.sub+'</h2><p>'+d.desc+'</p></div>';
+  var d=D[cur],h='<div class="dh"><h2>'+d.title+' — '+d.sub+'</h2><p>'+d.desc+'</p></div>';
   d.stops.forEach(function(x,i){
-    if(i>0){
-      var tr=null;
-      for(var j=0;j<d.tr.length;j++){if(d.tr[j].to===x.n){tr=d.tr[j];break;}}
-      if(tr){
-        h+='<div class="tl"><div class="tl-b"></div></div>';
-        h+='<div class="tp"><div class="ti '+tr.m+'">'+tr.ic+'</div><div class="tt"><b>'+tr.tx+'</b><br>'+tr.dt+'</div></div>';
-        h+='<div class="tl"><div class="tl-b"></div></div>';
-      }
-    }
+    if(i>0){var tr=null;for(var j=0;j<d.tr.length;j++){if(d.tr[j].to===x.n){tr=d.tr[j];break;}}
+      if(tr){h+='<div class="tl"><div class="tl-b"></div></div><div class="tp"><div class="ti '+tr.m+'">'+tr.ic+'</div><div class="tt"><b>'+tr.tx+'</b><br>'+tr.dt+'</div></div><div class="tl"><div class="tl-b"></div></div>';}}
     var ac=sel===i?' on':'';
-    h+='<div class="st'+ac+'" onclick="ps('+i+')" id="s'+i+'">';
-    h+='<div class="sn '+x.t+'">'+x.n+'</div>';
-    h+='<div class="si">';
-    h+='<div class="nm">'+x.kr+'<br><span class="ne">'+x.en+'</span></div>';
-    h+='<div class="sm"><span class="tm">'+x.tm+'</span><span>'+x.dur+'</span></div>';
-    h+='<div class="tg">';
-    if(x.rt) h+='<span class="rt">★ '+x.rt+'</span>';
-    if(x.pr) h+='<span class="pr">'+x.pr+'</span>';
-    if(x.cl) h+='<span class="cl">휴무 '+x.cl+'</span>';
-    if(x.wr) h+='<span class="wr">⚠ '+x.wr+'</span>';
-    h+='</div>';
-    h+='<div class="nt">'+(x.note||'')+'</div>';
-    h+='</div></div>';
+    h+='<div class="st'+ac+'" onclick="ps('+i+')" id="s'+i+'"><div class="sn '+x.t+'">'+x.n+'</div><div class="si"><div class="nm">'+x.kr+'<br><span class="ne">'+x.en+'</span></div><div class="sm"><span class="tm">'+x.tm+'</span><span>'+x.dur+'</span></div><div class="tg">';
+    if(x.rt)h+='<span class="rt">★ '+x.rt+'</span>';if(x.pr)h+='<span class="pr">'+x.pr+'</span>';if(x.cl)h+='<span class="cl">휴무 '+x.cl+'</span>';if(x.wr)h+='<span class="wr">⚠ '+x.wr+'</span>';
+    h+='</div><div class="nt">'+(x.note||'')+'</div></div></div>';
   });
   document.getElementById('ls').innerHTML=h;
 }
 
-// ===== ACTIONS =====
 function pd(i){cur=i;sel=null;rd();rl();um();}
 function ps(i){
-  sel=sel===i?null:i; rl();
-  if(sel!==null){
-    var x=D[cur].stops[sel];
-    mp.flyTo([x.lat,x.lng],16,{duration:0.5});
-    if(mks[sel]) mks[sel].openPopup();
-    var el=document.getElementById('s'+sel);
-    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
-  }
+  sel=sel===i?null:i;rl();
+  if(sel!==null){var x=D[cur].stops[sel];gmap.panTo({lat:x.lat,lng:x.lng});gmap.setZoom(16);showIW(sel);
+    var el=document.getElementById('s'+sel);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
 }
 function sv(v){
-  var mw=document.getElementById('mw'),lw=document.getElementById('lw');
-  var vm=document.getElementById('vm'),vl=document.getElementById('vl');
+  var mw=document.getElementById('mw'),lw=document.getElementById('lw'),vm=document.getElementById('vm'),vl=document.getElementById('vl');
   if(v==='map'){mw.classList.add('v');lw.classList.remove('v');vm.classList.add('on');vl.classList.remove('on');}
   else{lw.classList.add('v');mw.classList.remove('v');vl.classList.add('on');vm.classList.remove('on');}
-  if(v==='map') setTimeout(function(){mp.invalidateSize();},100);
+  if(v==='map')setTimeout(function(){google.maps.event.trigger(gmap,'resize');},100);
 }
 
-// ===== MAP =====
+function mc(t){return t==='food'?'#22c55e':t==='transport-marker'?'#a855f7':'#3b82f6';}
+
+function showIW(idx){
+  var x=D[cur].stops[idx];
+  var c='<div class="iw"><h3>'+x.kr+'</h3><div class="sub">'+x.en+'</div><p><b>'+x.tm+'</b> · '+x.dur+'</p>';
+  if(x.rt)c+='<p>★ '+x.rt+'</p>';if(x.note)c+='<p>'+x.note+'</p>';c+='</div>';
+  iw.setContent(c);iw.open(gmap,gmks[idx]);
+}
+
 function initMap(){
-  mp=L.map('map',{zoomControl:true,attributionControl:false}).setView([41.145,-8.612],14);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(mp);
+  gmap=new google.maps.Map(document.getElementById('map'),{
+    center:{lat:41.145,lng:-8.612},zoom:14,styles:darkStyle,
+    disableDefaultUI:true,zoomControl:true,fullscreenControl:true,mapTypeControl:false
+  });
+  iw=new google.maps.InfoWindow();
+  dService=new google.maps.DirectionsService();
+  dRenderer=new google.maps.DirectionsRenderer({suppressMarkers:true,polylineOptions:{strokeColor:'#e8a838',strokeWeight:4,strokeOpacity:0.8}});
+  dRenderer.setMap(gmap);
   um();
 }
 
-function mc(t){return t==='food'?'f':t==='transport-marker'?'t':'s';}
-
 function um(){
-  mks.forEach(function(m){mp.removeLayer(m);});
-  mks=[];
-  extras.forEach(function(m){mp.removeLayer(m);});
-  extras=[];
-  if(pl) mp.removeLayer(pl);
-
-  var d=D[cur], pts=[];
+  gmks.forEach(function(m){m.setMap(null);});gmks=[];
+  dRenderer.setDirections({routes:[]});
+  var d=D[cur],bounds=new google.maps.LatLngBounds();
   d.stops.forEach(function(x,i){
-    pts.push([x.lat,x.lng]);
-    var icon=L.divIcon({className:'',html:'<div class="cm '+mc(x.t)+'">'+x.n+'</div>',iconSize:[32,32],iconAnchor:[16,16],popupAnchor:[0,-18]});
-    var mk=L.marker([x.lat,x.lng],{icon:icon}).addTo(mp);
-    var pop='<h3>'+x.kr+'</h3><p class="p2">'+x.en+'</p><p><b>'+x.tm+'</b> · '+x.dur+'</p>';
-    if(x.rt) pop+='<p>★ '+x.rt+'</p>';
-    if(x.note) pop+='<p>'+x.note+'</p>';
-    mk.bindPopup(pop);
-    mk.on('click',function(){sel=i;rl();var el=document.getElementById('s'+i);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});});
-    mks.push(mk);
+    var pos={lat:x.lat,lng:x.lng};bounds.extend(pos);
+    var mk=new google.maps.Marker({position:pos,map:gmap,
+      label:{text:String(x.n),color:'#fff',fontSize:'12px',fontWeight:'700'},
+      icon:{path:google.maps.SymbolPath.CIRCLE,fillColor:mc(x.t),fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:16,labelOrigin:new google.maps.Point(0,0)},
+      zIndex:100+i});
+    mk.addListener('click',function(){sel=i;rl();showIW(i);var el=document.getElementById('s'+i);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});});
+    gmks.push(mk);
   });
-
-  pl=L.polyline(pts,{color:'#e8a838',weight:3,opacity:0.7,dashArray:'8,8'}).addTo(mp);
-
-  for(var i=0;i<pts.length-1;i++){
-    var mid=[(pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2];
-    var dy=pts[i+1][0]-pts[i][0], dx=pts[i+1][1]-pts[i][1];
-    var angle=Math.atan2(dx,dy)*180/Math.PI;
-    var arr=L.divIcon({className:'',html:'<div style="color:#e8a838;font-size:12px;transform:rotate('+(180-angle)+'deg);line-height:1">▲</div>',iconSize:[12,12],iconAnchor:[6,6]});
-    var am=L.marker(mid,{icon:arr,interactive:false}).addTo(mp);
-    extras.push(am);
-  }
-
-  if(pts.length>0) mp.fitBounds(pts,{padding:[40,40],maxZoom:15});
+  gmap.fitBounds(bounds,60);
+  drawRoute(d);
 }
 
-// ===== INIT =====
-rd(); rl(); initMap();
-window.addEventListener('resize',function(){mp.invalidateSize();});
+function drawRoute(d){
+  if(d.stops.length<2)return;
+  var origin={lat:d.stops[0].lat,lng:d.stops[0].lng};
+  var dest={lat:d.stops[d.stops.length-1].lat,lng:d.stops[d.stops.length-1].lng};
+  var wps=[];
+  for(var i=1;i<d.stops.length-1;i++){wps.push({location:{lat:d.stops[i].lat,lng:d.stops[i].lng},stopover:true});}
+  var mode=d.tmode||'WALKING';
+  dService.route({origin:origin,destination:dest,waypoints:wps,travelMode:google.maps.TravelMode[mode],optimizeWaypoints:false},
+    function(res,status){
+      if(status==='OK'){dRenderer.setDirections(res);}
+      else{
+        // Fallback: try WALKING if other mode fails
+        if(mode!=='WALKING'){
+          dService.route({origin:origin,destination:dest,waypoints:wps,travelMode:google.maps.TravelMode.WALKING,optimizeWaypoints:false},
+            function(r2,s2){if(s2==='OK')dRenderer.setDirections(r2);});
+        }
+      }
+    });
+}
+
+window.initMap=initMap;
+rd();rl();
 </script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap&libraries=geometry"></script>
 </body>
 </html>
