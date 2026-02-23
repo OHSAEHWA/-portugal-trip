@@ -123,11 +123,22 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 .daypick button{padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:var(--bg);color:var(--tx);font-size:13px;font-family:inherit;cursor:pointer}
 .daypick button:active{background:var(--acc);color:#000}
 .empty{text-align:center;padding:60px 20px;color:var(--dm);font-size:13px}
+.sync-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:var(--card);color:var(--acc);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s;flex-shrink:0}
+.sync-btn.spinning{animation:spin 1s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sync-status{font-size:10px;color:var(--dm);margin-top:4px;min-height:14px;transition:opacity .3s}
+.sync-status.ok{color:var(--gn)}.sync-status.err{color:var(--rd)}.sync-status.warn{color:var(--or)}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="top"><h1>🇵🇹 포르투갈 8일 여행</h1><p>포르투 3일 + 리스본 5일</p></div>
+<div class="top">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div><h1>🇵🇹 포르투갈 8일 여행</h1><p>포르투 3일 + 리스본 5일</p></div>
+<button class="sync-btn" id="syncBtn" onclick="syncData()">🔄</button>
+</div>
+<div class="sync-status" id="syncStatus"></div>
+</div>
 <div class="mtabs">
 <button class="mtab on" onclick="mainTab('itin')" id="mt1">📅 일정</button>
 <button class="mtab" onclick="mainTab('places')" id="mt2">📍 저장소</button>
@@ -200,7 +211,7 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc,writeBatch}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 
 const app=initializeApp({apiKey:"AIzaSyC5M014PkaOMBGHrWVQP6Q_wb6zOb7I0qs",authDomain:"gosuchatapp.firebaseapp.com",projectId:"gosuchatapp",storageBucket:"gosuchatapp.firebasestorage.app",messagingSenderId:"629416132349",appId:"1:629416132349:web:52c704d8740b1d59464894"});
@@ -208,112 +219,131 @@ const db=getFirestore(app);
 const auth=getAuth(app);
 signInAnonymously(auth).catch(e=>console.log(e));
 
-window.FB={db,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc,writeBatch};
+window.FB={db,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc};
 window.PCOL='portugalPlaces';
 window.ICOL='portugalItinerary';
+const LS_PLACES='pt_places';
+const LS_DAYS='pt_days';
+const LS_LASTMOD='pt_lastmod';
 
 // ===== SEED DATA =====
 const SEED_PLACES=[
-{cat:"food",city:"porto",name:"VOLTARIA",nameEn:"Petisqueira Voltaria",rating:4.8,price:"€",closed:"수,일",menu:"프란세지냐, 대구요리",tip:"가정식 요리. 줄 서지만 가치 있음!",lat:41.1444161,lng:-8.6122994,visited:false},
-{cat:"food",city:"porto",name:"The Door",nameEn:"The Door Porto",rating:4.8,price:"€€",menu:"테이스팅 코스",tip:"예약 필수 (18시 오픈).",lat:41.1441961,lng:-8.616688,visited:false},
-{cat:"food",city:"porto",name:"Bota & Bira",nameEn:"Bota & Bira",rating:4.8,price:"€€",closed:"월,일",menu:"립아이, 문어",tip:"스테이크 전문. 예약!",lat:41.1424129,lng:-8.6158059,visited:false},
-{cat:"food",city:"porto",name:"Taberna Dos Mercadores",nameEn:"Taberna Dos Mercadores",rating:4.5,price:"€€",closed:"월",menu:"문어밥",tip:"16석뿐!",lat:41.1413291,lng:-8.6129202,visited:false},
-{cat:"food",city:"porto",name:"Brasão Aliados",nameEn:"Brasão Aliados",rating:4.6,price:"€€",menu:"프란세지냐",tip:"3/4 사이즈 1인 충분.",lat:41.1491541,lng:-8.6117884,visited:false},
-{cat:"food",city:"porto",name:"A Despensa",nameEn:"A Despensa",rating:4.8,price:"€€",closed:"월",menu:"파스타, 라자냐",tip:"미쉐린급. 19시 오픈.",lat:41.147249,lng:-8.613547,visited:false},
-{cat:"food",city:"lisbon",name:"Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",rating:4.7,price:"€",menu:"문어+고구마매시, 마늘새우",tip:"알파마 숨은 맛집!",lat:38.7136987,lng:-9.1244447,visited:false},
-{cat:"food",city:"lisbon",name:"A Nossa Casa",nameEn:"A Nossa Casa",rating:4.8,price:"€€",menu:"타르타르, 문어",tip:"24석. 18:30 예약!",lat:38.7118452,lng:-9.1449444,visited:false},
-{cat:"food",city:"lisbon",name:"파스테이스 드 벨렝",nameEn:"Pastéis de Belém",rating:4.6,price:"€",menu:"에그타르트",tip:"아침에 줄 짧아요!",lat:38.6975105,lng:-9.203228,visited:false},
-{cat:"food",city:"lisbon",name:"Time Out Market",nameEn:"Time Out Market",rating:4.4,price:"€€~€€€",menu:"다양한 음식",tip:"한곳에서 다양하게.",lat:38.7070608,lng:-9.1456691,visited:false},
-{cat:"food",city:"lisbon",name:"Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",rating:4.5,price:"€",menu:"오징어+감자",tip:"가성비 로컬.",lat:38.710951,lng:-9.130052,visited:false},
-{cat:"food",city:"lisbon",name:"Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",rating:4.4,price:"€€€",closed:"월",menu:"타이거새우, 마늘게",tip:"번호표 대기.",lat:38.720257,lng:-9.135743,visited:false},
-{cat:"food",city:"lisbon",name:"Augusto Lisboa",nameEn:"Augusto Lisboa",rating:4.8,price:"€€",menu:"스크램블에그, 팬케이크",tip:"브런치 맛집.",lat:38.714425,lng:-9.130207,visited:false},
-{cat:"food",city:"lisbon",name:"Copo de Mar",nameEn:"Copo de Mar",rating:4.8,price:"€€",closed:"일",menu:"대구, 문어",tip:"피날레 디너! 예약!",lat:38.739801,lng:-9.149103,visited:false},
-{cat:"sight",city:"porto",name:"상벤투 기차역",nameEn:"Estação São Bento",rating:4.7,price:"무료",menu:"아줄레주 타일",tip:"2만 개 푸른 타일.",lat:41.145492,lng:-8.609544,visited:false},
-{cat:"sight",city:"porto",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",rating:4.6,price:"€10",menu:"240계단 전망대",tip:"포르투 최고 전망!",lat:41.1456705,lng:-8.6145977,visited:false},
-{cat:"sight",city:"porto",name:"리브라리아 렐루",nameEn:"Livraria Lello",rating:4.0,price:"€8",menu:"아름다운 서점",tip:"사전 예약 필수!",lat:41.146905,lng:-8.614774,visited:false},
-{cat:"sight",city:"porto",name:"리베이라 지구",nameEn:"Cais da Ribeira",rating:4.8,price:"무료",menu:"UNESCO 유산",tip:"도우로 강변 산책.",lat:41.14041,lng:-8.612566,visited:false},
-{cat:"sight",city:"porto",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",rating:4.8,price:"무료",menu:"파노라마 뷰",tip:"상층으로 걸어서!",lat:41.139959,lng:-8.609449,visited:false},
-{cat:"sight",city:"lisbon",name:"상 조르제 성",nameEn:"Castelo de São Jorge",rating:4.5,price:"€15",menu:"파노라마 뷰",tip:"Lisboa Card 무료.",lat:38.713909,lng:-9.133476,visited:false},
-{cat:"sight",city:"lisbon",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",rating:4.5,price:"€10",closed:"월",menu:"마누엘 양식",tip:"온라인 예약!",lat:38.6978909,lng:-9.206704,visited:false},
-{cat:"sight",city:"lisbon",name:"오세아나리움",nameEn:"Oceanário de Lisboa",rating:4.7,price:"€25~29",menu:"해달, 해파리",tip:"유럽 최대 수족관!",lat:38.7635435,lng:-9.0937415,visited:false},
-{cat:"sight",city:"sintra",name:"페나 궁전",nameEn:"Palácio da Pena",rating:4.4,price:"€14~20",menu:"동화 속 궁전",tip:"예약 필수. 편한 신발!",lat:38.7875851,lng:-9.3906089,visited:false}
+{id:'s1',cat:"food",city:"porto",name:"VOLTARIA",nameEn:"Petisqueira Voltaria",rating:4.8,price:"€",closed:"수,일",menu:"프란세지냐, 대구요리",tip:"가정식 요리!",lat:41.1444161,lng:-8.6122994,visited:false},
+{id:'s2',cat:"food",city:"porto",name:"The Door",nameEn:"The Door Porto",rating:4.8,price:"€€",menu:"테이스팅 코스",tip:"예약 필수 (18시 오픈).",lat:41.1441961,lng:-8.616688,visited:false},
+{id:'s3',cat:"food",city:"porto",name:"Bota & Bira",nameEn:"Bota & Bira",rating:4.8,price:"€€",closed:"월,일",menu:"립아이, 문어",tip:"스테이크 전문.",lat:41.1424129,lng:-8.6158059,visited:false},
+{id:'s4',cat:"food",city:"porto",name:"Taberna Dos Mercadores",nameEn:"Taberna Dos Mercadores",rating:4.5,price:"€€",closed:"월",menu:"문어밥",tip:"16석뿐!",lat:41.1413291,lng:-8.6129202,visited:false},
+{id:'s5',cat:"food",city:"porto",name:"Brasão Aliados",nameEn:"Brasão Aliados",rating:4.6,price:"€€",menu:"프란세지냐",tip:"3/4 사이즈 1인 충분.",lat:41.1491541,lng:-8.6117884,visited:false},
+{id:'s6',cat:"food",city:"porto",name:"A Despensa",nameEn:"A Despensa",rating:4.8,price:"€€",closed:"월",menu:"파스타, 라자냐",tip:"미쉐린급.",lat:41.147249,lng:-8.613547,visited:false},
+{id:'s7',cat:"food",city:"lisbon",name:"Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",rating:4.7,price:"€",menu:"문어+고구마매시",tip:"알파마 숨은 맛집!",lat:38.7136987,lng:-9.1244447,visited:false},
+{id:'s8',cat:"food",city:"lisbon",name:"A Nossa Casa",nameEn:"A Nossa Casa",rating:4.8,price:"€€",menu:"타르타르, 문어",tip:"24석. 예약!",lat:38.7118452,lng:-9.1449444,visited:false},
+{id:'s9',cat:"food",city:"lisbon",name:"파스테이스 드 벨렝",nameEn:"Pastéis de Belém",rating:4.6,price:"€",menu:"에그타르트",tip:"아침에 줄 짧아요!",lat:38.6975105,lng:-9.203228,visited:false},
+{id:'s10',cat:"food",city:"lisbon",name:"Time Out Market",nameEn:"Time Out Market",rating:4.4,price:"€€~€€€",menu:"다양한 음식",tip:"한곳에서 다양하게.",lat:38.7070608,lng:-9.1456691,visited:false},
+{id:'s11',cat:"food",city:"lisbon",name:"Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",rating:4.5,price:"€",menu:"오징어+감자",tip:"가성비 로컬.",lat:38.710951,lng:-9.130052,visited:false},
+{id:'s12',cat:"food",city:"lisbon",name:"Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",rating:4.4,price:"€€€",closed:"월",menu:"타이거새우, 마늘게",tip:"번호표 대기.",lat:38.720257,lng:-9.135743,visited:false},
+{id:'s13',cat:"food",city:"lisbon",name:"Augusto Lisboa",nameEn:"Augusto Lisboa",rating:4.8,price:"€€",menu:"스크램블에그",tip:"브런치 맛집.",lat:38.714425,lng:-9.130207,visited:false},
+{id:'s14',cat:"food",city:"lisbon",name:"Copo de Mar",nameEn:"Copo de Mar",rating:4.8,price:"€€",closed:"일",menu:"대구, 문어",tip:"피날레 디너!",lat:38.739801,lng:-9.149103,visited:false},
+{id:'s15',cat:"sight",city:"porto",name:"상벤투 기차역",nameEn:"Estação São Bento",rating:4.7,price:"무료",menu:"아줄레주 타일",tip:"2만 개 푸른 타일.",lat:41.145492,lng:-8.609544,visited:false},
+{id:'s16',cat:"sight",city:"porto",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",rating:4.6,price:"€10",menu:"240계단 전망대",tip:"포르투 최고 전망!",lat:41.1456705,lng:-8.6145977,visited:false},
+{id:'s17',cat:"sight",city:"porto",name:"리브라리아 렐루",nameEn:"Livraria Lello",rating:4.0,price:"€8",menu:"아름다운 서점",tip:"사전 예약 필수!",lat:41.146905,lng:-8.614774,visited:false},
+{id:'s18',cat:"sight",city:"porto",name:"리베이라 지구",nameEn:"Cais da Ribeira",rating:4.8,price:"무료",menu:"UNESCO 유산",tip:"도우로 강변.",lat:41.14041,lng:-8.612566,visited:false},
+{id:'s19',cat:"sight",city:"porto",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",rating:4.8,price:"무료",menu:"파노라마 뷰",tip:"상층으로!",lat:41.139959,lng:-8.609449,visited:false},
+{id:'s20',cat:"sight",city:"lisbon",name:"상 조르제 성",nameEn:"Castelo de São Jorge",rating:4.5,price:"€15",menu:"파노라마 뷰",tip:"Lisboa Card 무료.",lat:38.713909,lng:-9.133476,visited:false},
+{id:'s21',cat:"sight",city:"lisbon",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",rating:4.5,price:"€10",closed:"월",menu:"마누엘 양식",tip:"온라인 예약!",lat:38.6978909,lng:-9.206704,visited:false},
+{id:'s22',cat:"sight",city:"lisbon",name:"오세아나리움",nameEn:"Oceanário de Lisboa",rating:4.7,price:"€25~29",menu:"해달, 해파리",tip:"유럽 최대!",lat:38.7635435,lng:-9.0937415,visited:false},
+{id:'s23',cat:"sight",city:"sintra",name:"페나 궁전",nameEn:"Palácio da Pena",rating:4.4,price:"€14~20",menu:"동화 속 궁전",tip:"예약 필수!",lat:38.7875851,lng:-9.3906089,visited:false}
 ];
 
 const SEED_ITIN=[
-{day:1,title:"포르투 Day 1",sub:"구시가지",city:"porto",stops:[
-{order:0,cat:"sight",name:"상벤투 기차역",nameEn:"Estação São Bento",lat:41.145492,lng:-8.609544,tm:"10:00",dur:"30분",note:"아줄레주 타일!"},
-{order:1,cat:"sight",name:"포르투 대성당",nameEn:"Sé do Porto",lat:41.142853,lng:-8.611116,tm:"10:45",dur:"45분",note:"360도 전망."},
-{order:2,cat:"sight",name:"리베이라 지구",nameEn:"Cais da Ribeira",lat:41.14041,lng:-8.612566,tm:"11:45",dur:"45분",note:"UNESCO 유산."},
-{order:3,cat:"food",name:"🍽️ VOLTARIA",nameEn:"Voltaria",lat:41.1444161,lng:-8.6122994,tm:"12:45",dur:"75분",note:"프란세지냐 추천."},
-{order:4,cat:"sight",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",lat:41.1456705,lng:-8.6145977,tm:"14:30",dur:"60분",note:"240계단!"},
-{order:5,cat:"sight",name:"리브라리아 렐루",nameEn:"Livraria Lello",lat:41.146905,lng:-8.614774,tm:"15:45",dur:"30분",note:"사전 예약!"},
-{order:6,cat:"food",name:"🍽️ The Door",nameEn:"The Door Porto",lat:41.1441961,lng:-8.616688,tm:"18:30",dur:"90분",note:"테이스팅 코스."}]},
-{day:2,title:"포르투 Day 2",sub:"와인 & 가이아",city:"porto",stops:[
-{order:0,cat:"sight",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",lat:41.139959,lng:-8.609449,tm:"10:00",dur:"30분",note:"상층 파노라마!"},
-{order:1,cat:"sight",name:"Fonseca 셀러",nameEn:"Fonseca",lat:41.1354472,lng:-8.614342,tm:"10:45",dur:"75분",note:"토니 포트 일품."},
-{order:2,cat:"sight",name:"Niepoort 셀러",nameEn:"Niepoort",lat:41.1342013,lng:-8.618324,tm:"12:15",dur:"75분",note:"사전 예약!"},
-{order:3,cat:"food",name:"🍽️ Taberna Mercadores",nameEn:"Taberna Dos Mercadores",lat:41.1413291,lng:-8.6129202,tm:"13:45",dur:"75분",note:"문어밥!"},
-{order:4,cat:"sight",name:"크리스탈 궁전 정원",nameEn:"Jardins Palácio de Cristal",lat:41.1482682,lng:-8.6255165,tm:"15:30",dur:"90분",note:"일몰 포인트!"},
-{order:5,cat:"food",name:"🍽️ Bota & Bira",nameEn:"Bota & Bira",lat:41.1424129,lng:-8.6158059,tm:"19:00",dur:"90분",note:"립아이!"}]},
-{day:3,title:"포르투 Day 3",sub:"볼사 궁전",city:"porto",stops:[
-{order:0,cat:"sight",name:"볼사 궁전",nameEn:"Palácio da Bolsa",lat:41.1413772,lng:-8.615672,tm:"10:00",dur:"60분",note:"아랍의 방!"},
-{order:1,cat:"sight",name:"비르투데스 공원",nameEn:"Parque das Virtudes",lat:41.1447,lng:-8.618988,tm:"11:30",dur:"45분",note:"숨은 명소."},
-{order:2,cat:"food",name:"🍽️ Brasão Aliados",nameEn:"Brasão Aliados",lat:41.1491541,lng:-8.6117884,tm:"12:45",dur:"75분",note:"프란세지냐!"},
-{order:3,cat:"food",name:"🍽️ A Despensa",nameEn:"A Despensa",lat:41.147249,lng:-8.613547,tm:"19:30",dur:"90분",note:"최고 파스타!"}]},
-{day:4,title:"리스본 Day 1",sub:"알파마 & 성",city:"lisbon",stops:[
-{order:0,cat:"sight",name:"리스본 대성당",nameEn:"Sé de Lisboa",lat:38.709834,lng:-9.132954,tm:"11:30",dur:"45분",note:"1147년 성당."},
-{order:1,cat:"sight",name:"상 조르제 성",nameEn:"Castelo de São Jorge",lat:38.713909,lng:-9.133476,tm:"12:30",dur:"90분",note:"파노라마!"},
-{order:2,cat:"food",name:"🍽️ Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",lat:38.7136987,lng:-9.1244447,tm:"14:15",dur:"75분",note:"문어+고구마!"},
-{order:3,cat:"food",name:"🍽️ A Nossa Casa",nameEn:"A Nossa Casa",lat:38.7118452,lng:-9.1449444,tm:"19:00",dur:"90분",note:"타르타르!"}]},
-{day:5,title:"리스본 Day 2",sub:"벨렝",city:"lisbon",stops:[
-{order:0,cat:"food",name:"🍽️ 파스테이스 드 벨렝",nameEn:"Pastéis de Belém",lat:38.6975105,lng:-9.203228,tm:"09:00",dur:"45분",note:"에그타르트!"},
-{order:1,cat:"sight",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",lat:38.6978909,lng:-9.206704,tm:"10:00",dur:"90분",note:"예약 강추!"},
-{order:2,cat:"sight",name:"벨렝 탑",nameEn:"Torre de Belém",lat:38.691584,lng:-9.215977,tm:"12:00",dur:"30분",note:"공사 중."},
-{order:3,cat:"food",name:"🍽️ Time Out Market",nameEn:"Time Out Market",lat:38.7070608,lng:-9.1456691,tm:"13:30",dur:"75분",note:"다양한 음식."},
-{order:4,cat:"sight",name:"코메르시우 광장",nameEn:"Praça do Comércio",lat:38.7072828,lng:-9.136361,tm:"15:30",dur:"45분",note:"석양!"}]},
-{day:6,title:"리스본 Day 3",sub:"신트라",city:"sintra",stops:[
-{order:0,cat:"sight",name:"페나 궁전",nameEn:"Palácio da Pena",lat:38.7875851,lng:-9.3906089,tm:"10:00",dur:"150분",note:"예약 필수!"}]},
-{day:7,title:"리스본 Day 4",sub:"바이샤",city:"lisbon",stops:[
-{order:0,cat:"sight",name:"카르무 박물관",nameEn:"Museu do Carmo",lat:38.712038,lng:-9.140613,tm:"10:30",dur:"60분",note:"지붕 없는 성당!"},
-{order:1,cat:"food",name:"🍽️ Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",lat:38.710951,lng:-9.130052,tm:"12:30",dur:"75분",note:"가성비."},
-{order:2,cat:"food",name:"🍽️ Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",lat:38.720257,lng:-9.135743,tm:"19:00",dur:"90분",note:"해산물!"}]},
-{day:8,title:"리스본 Day 5",sub:"피날레",city:"lisbon",stops:[
-{order:0,cat:"sight",name:"오세아나리움",nameEn:"Oceanário",lat:38.7635435,lng:-9.0937415,tm:"10:00",dur:"180분",note:"유럽 최대!"},
-{order:1,cat:"food",name:"🍽️ Augusto Lisboa",nameEn:"Augusto Lisboa",lat:38.714425,lng:-9.130207,tm:"14:30",dur:"75분",note:"브런치!"},
-{order:2,cat:"food",name:"🍽️ Copo de Mar",nameEn:"Copo de Mar",lat:38.739801,lng:-9.149103,tm:"19:30",dur:"90분",note:"피날레!"}]}
+{day:1,title:"포르투 Day 1",sub:"구시가지",city:"porto",stops:[{order:0,cat:"sight",name:"상벤투 기차역",nameEn:"Estação São Bento",lat:41.145492,lng:-8.609544,tm:"10:00",dur:"30분",note:"아줄레주 타일!"},{order:1,cat:"sight",name:"포르투 대성당",nameEn:"Sé do Porto",lat:41.142853,lng:-8.611116,tm:"10:45",dur:"45분",note:"360도 전망."},{order:2,cat:"sight",name:"리베이라 지구",nameEn:"Cais da Ribeira",lat:41.14041,lng:-8.612566,tm:"11:45",dur:"45분",note:"UNESCO 유산."},{order:3,cat:"food",name:"🍽️ VOLTARIA",nameEn:"Voltaria",lat:41.1444161,lng:-8.6122994,tm:"12:45",dur:"75분",note:"프란세지냐 추천."},{order:4,cat:"sight",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",lat:41.1456705,lng:-8.6145977,tm:"14:30",dur:"60분",note:"240계단!"},{order:5,cat:"sight",name:"리브라리아 렐루",nameEn:"Livraria Lello",lat:41.146905,lng:-8.614774,tm:"15:45",dur:"30분",note:"사전 예약!"},{order:6,cat:"food",name:"🍽️ The Door",nameEn:"The Door Porto",lat:41.1441961,lng:-8.616688,tm:"18:30",dur:"90분",note:"테이스팅 코스."}]},
+{day:2,title:"포르투 Day 2",sub:"와인 & 가이아",city:"porto",stops:[{order:0,cat:"sight",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",lat:41.139959,lng:-8.609449,tm:"10:00",dur:"30분",note:"상층!"},{order:1,cat:"sight",name:"Fonseca 셀러",nameEn:"Fonseca",lat:41.1354472,lng:-8.614342,tm:"10:45",dur:"75분",note:"토니 포트."},{order:2,cat:"sight",name:"Niepoort 셀러",nameEn:"Niepoort",lat:41.1342013,lng:-8.618324,tm:"12:15",dur:"75분",note:"예약!"},{order:3,cat:"food",name:"🍽️ Taberna Mercadores",nameEn:"Taberna Dos Mercadores",lat:41.1413291,lng:-8.6129202,tm:"13:45",dur:"75분",note:"문어밥!"},{order:4,cat:"sight",name:"크리스탈 궁전 정원",nameEn:"Jardins Palácio de Cristal",lat:41.1482682,lng:-8.6255165,tm:"15:30",dur:"90분",note:"일몰!"},{order:5,cat:"food",name:"🍽️ Bota & Bira",nameEn:"Bota & Bira",lat:41.1424129,lng:-8.6158059,tm:"19:00",dur:"90분",note:"립아이!"}]},
+{day:3,title:"포르투 Day 3",sub:"볼사 궁전",city:"porto",stops:[{order:0,cat:"sight",name:"볼사 궁전",nameEn:"Palácio da Bolsa",lat:41.1413772,lng:-8.615672,tm:"10:00",dur:"60분",note:"아랍의 방!"},{order:1,cat:"sight",name:"비르투데스 공원",nameEn:"Parque das Virtudes",lat:41.1447,lng:-8.618988,tm:"11:30",dur:"45분",note:"숨은 명소."},{order:2,cat:"food",name:"🍽️ Brasão Aliados",nameEn:"Brasão Aliados",lat:41.1491541,lng:-8.6117884,tm:"12:45",dur:"75분",note:"프란세지냐!"},{order:3,cat:"food",name:"🍽️ A Despensa",nameEn:"A Despensa",lat:41.147249,lng:-8.613547,tm:"19:30",dur:"90분",note:"최고 파스타!"}]},
+{day:4,title:"리스본 Day 1",sub:"알파마 & 성",city:"lisbon",stops:[{order:0,cat:"sight",name:"리스본 대성당",nameEn:"Sé de Lisboa",lat:38.709834,lng:-9.132954,tm:"11:30",dur:"45분",note:"1147년 성당."},{order:1,cat:"sight",name:"상 조르제 성",nameEn:"Castelo de São Jorge",lat:38.713909,lng:-9.133476,tm:"12:30",dur:"90분",note:"파노라마!"},{order:2,cat:"food",name:"🍽️ Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",lat:38.7136987,lng:-9.1244447,tm:"14:15",dur:"75분",note:"문어+고구마!"},{order:3,cat:"food",name:"🍽️ A Nossa Casa",nameEn:"A Nossa Casa",lat:38.7118452,lng:-9.1449444,tm:"19:00",dur:"90분",note:"타르타르!"}]},
+{day:5,title:"리스본 Day 2",sub:"벨렝",city:"lisbon",stops:[{order:0,cat:"food",name:"🍽️ 파스테이스 드 벨렝",nameEn:"Pastéis de Belém",lat:38.6975105,lng:-9.203228,tm:"09:00",dur:"45분",note:"에그타르트!"},{order:1,cat:"sight",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",lat:38.6978909,lng:-9.206704,tm:"10:00",dur:"90분",note:"예약!"},{order:2,cat:"sight",name:"벨렝 탑",nameEn:"Torre de Belém",lat:38.691584,lng:-9.215977,tm:"12:00",dur:"30분",note:"공사 중."},{order:3,cat:"food",name:"🍽️ Time Out Market",nameEn:"Time Out Market",lat:38.7070608,lng:-9.1456691,tm:"13:30",dur:"75분",note:"다양한 음식."},{order:4,cat:"sight",name:"코메르시우 광장",nameEn:"Praça do Comércio",lat:38.7072828,lng:-9.136361,tm:"15:30",dur:"45분",note:"석양!"}]},
+{day:6,title:"리스본 Day 3",sub:"신트라",city:"sintra",stops:[{order:0,cat:"sight",name:"페나 궁전",nameEn:"Palácio da Pena",lat:38.7875851,lng:-9.3906089,tm:"10:00",dur:"150분",note:"예약!"}]},
+{day:7,title:"리스본 Day 4",sub:"바이샤",city:"lisbon",stops:[{order:0,cat:"sight",name:"카르무 박물관",nameEn:"Museu do Carmo",lat:38.712038,lng:-9.140613,tm:"10:30",dur:"60분",note:"지붕 없는 성당!"},{order:1,cat:"food",name:"🍽️ Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",lat:38.710951,lng:-9.130052,tm:"12:30",dur:"75분",note:"가성비."},{order:2,cat:"food",name:"🍽️ Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",lat:38.720257,lng:-9.135743,tm:"19:00",dur:"90분",note:"해산물!"}]},
+{day:8,title:"리스본 Day 5",sub:"피날레",city:"lisbon",stops:[{order:0,cat:"sight",name:"오세아나리움",nameEn:"Oceanário",lat:38.7635435,lng:-9.0937415,tm:"10:00",dur:"180분",note:"유럽 최대!"},{order:1,cat:"food",name:"🍽️ Augusto Lisboa",nameEn:"Augusto Lisboa",lat:38.714425,lng:-9.130207,tm:"14:30",dur:"75분",note:"브런치!"},{order:2,cat:"food",name:"🍽️ Copo de Mar",nameEn:"Copo de Mar",lat:38.739801,lng:-9.149103,tm:"19:30",dur:"90분",note:"피날레!"}]}
 ];
 
-async function initData(){
-  // Check places
-  let pSnap=await getDocs(collection(db,window.PCOL));
-  if(pSnap.size===0){for(const s of SEED_PLACES){await addDoc(collection(db,window.PCOL),{...s,createdAt:Date.now()});}}
-  // Check itinerary
-  let iSnap=await getDocs(collection(db,window.ICOL));
-  if(iSnap.size===0){for(const d of SEED_ITIN){await setDoc(doc(db,window.ICOL,'day'+d.day),d);}}
-  window.loadAll();
+// ===== LOCAL STORAGE HELPERS =====
+function lsGet(key){try{return JSON.parse(localStorage.getItem(key));}catch(e){return null;}}
+function lsSet(key,val){try{localStorage.setItem(key,JSON.stringify(val));localStorage.setItem(LS_LASTMOD,Date.now());}catch(e){console.warn('LS full');}}
+function showStatus(msg,cls){var el=document.getElementById('syncStatus');el.textContent=msg;el.className='sync-status '+(cls||'');setTimeout(()=>{el.textContent='';},4000);}
+
+// ===== INIT: Load from LocalStorage first, then render =====
+function initLocal(){
+  var places=lsGet(LS_PLACES);
+  var days=lsGet(LS_DAYS);
+  if(!places||!places.length){places=SEED_PLACES;lsSet(LS_PLACES,places);}
+  if(!days||!days.length){days=SEED_ITIN;lsSet(LS_DAYS,days);}
+  window._places=places;window._places.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  window._days=days;window._days.sort((a,b)=>a.day-b.day);
+  window._days.forEach(d=>{if(d.stops)d.stops.sort((a,b)=>a.order-b.order);});
+  window.renderDays();window.renderItinList();window.renderPlaces();window.updateItinMap();
+  showStatus('📱 오프라인 모드 · 🔄 눌러서 동기화','');
 }
 
-window.loadAll=async function(){
-  // Load places
-  let ps=await getDocs(collection(db,window.PCOL));
-  window._places=[];ps.forEach(d=>{window._places.push({id:d.id,...d.data()});});
-  window._places.sort((a,b)=>(b.rating||0)-(a.rating||0));
-  // Load itinerary
-  let is=await getDocs(collection(db,window.ICOL));
-  window._days=[];is.forEach(d=>{window._days.push({id:d.id,...d.data()});});
-  window._days.sort((a,b)=>a.day-b.day);
+// ===== SYNC: Upload local → Firebase, Download Firebase → Local =====
+window.syncData=async function(){
+  var btn=document.getElementById('syncBtn');
+  btn.classList.add('spinning');showStatus('☁️ 동기화 중...','warn');
+  try{
+    // 1. Upload local places to Firebase
+    var localPlaces=lsGet(LS_PLACES)||[];
+    // Clear Firebase places
+    var oldSnap=await getDocs(collection(db,PCOL));
+    var deletes=[];oldSnap.forEach(d=>{deletes.push(deleteDoc(doc(db,PCOL,d.id)));});
+    await Promise.all(deletes);
+    // Write all local places
+    var newPlaces=[];
+    for(const p of localPlaces){
+      var pCopy={...p};delete pCopy.id;
+      var ref=await addDoc(collection(db,PCOL),pCopy);
+      newPlaces.push({...pCopy,id:ref.id});
+    }
+    // 2. Upload local itinerary to Firebase
+    var localDays=lsGet(LS_DAYS)||[];
+    for(const d of localDays){
+      var dCopy={...d};delete dCopy._transit;
+      if(dCopy.stops)dCopy.stops=dCopy.stops.map(s=>{var c={...s};delete c._transit;return c;});
+      await setDoc(doc(db,ICOL,'day'+d.day),dCopy);
+    }
+    // 3. Download Firebase → Local (to get server IDs)
+    var pSnap=await getDocs(collection(db,PCOL));
+    var fbPlaces=[];pSnap.forEach(d=>{fbPlaces.push({id:d.id,...d.data()});});
+    fbPlaces.sort((a,b)=>(b.rating||0)-(a.rating||0));
+    var iSnap=await getDocs(collection(db,ICOL));
+    var fbDays=[];iSnap.forEach(d=>{fbDays.push({id:d.id,...d.data()});});
+    fbDays.sort((a,b)=>a.day-b.day);
+    fbDays.forEach(d=>{if(d.stops)d.stops.sort((a,b)=>a.order-b.order);});
+    // Save to local
+    lsSet(LS_PLACES,fbPlaces);lsSet(LS_DAYS,fbDays);
+    window._places=fbPlaces;window._days=fbDays;
+    window.renderDays();window.renderItinList();window.renderPlaces();window.updateItinMap();
+    showStatus('✅ 동기화 완료 · '+new Date().toLocaleTimeString('ko'),'ok');
+  }catch(e){
+    console.error(e);showStatus('❌ 동기화 실패 · 오프라인 모드','err');
+  }
+  btn.classList.remove('spinning');
+};
+
+// ===== LOCAL CRUD =====
+window.loadAll=function(){
+  window._places=lsGet(LS_PLACES)||[];window._places.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  window._days=lsGet(LS_DAYS)||[];window._days.sort((a,b)=>a.day-b.day);
   window._days.forEach(d=>{if(d.stops)d.stops.sort((a,b)=>a.order-b.order);});
-  window.renderDays();
-  window.renderItinList();
-  window.renderPlaces();
-  window.updateItinMap();
+  window.renderDays();window.renderItinList();window.renderPlaces();window.updateItinMap();
 };
 
-window.saveDay=async function(dayId,data){
-  await setDoc(doc(db,window.ICOL,dayId),data);
+window.saveDay=function(dayId,data){
+  var days=lsGet(LS_DAYS)||[];
+  var idx=days.findIndex(d=>d.id===dayId||'day'+d.day===dayId);
+  if(idx>=0)days[idx]=data;
+  lsSet(LS_DAYS,days);
 };
 
-initData();
+window.savePlaces=function(){lsSet(LS_PLACES,window._places);};
+
+initLocal();
 </script>
 
 <script>
@@ -376,27 +406,27 @@ window.pickStop=function(i){
     var el=document.getElementById('s'+sel);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
 };
 
-window.moveStop=async function(idx,dir){
+window.moveStop=function(idx,dir){
   var d=window._days[cur];var stops=d.stops||[];
   var ni=idx+dir;if(ni<0||ni>=stops.length)return;
   var tmp=stops[idx];stops[idx]=stops[ni];stops[ni]=tmp;
   stops.forEach((s,i)=>s.order=i);
-  await window.saveDay(d.id,d);
+  window.saveDay(d.id||'day'+d.day,d);
   renderItinList();updateItinMap();calcTransits();
 };
 
-window.removeStop=async function(idx){
+window.removeStop=function(idx){
   if(!confirm('일정에서 삭제하시겠어요?'))return;
   var d=window._days[cur];d.stops.splice(idx,1);
   d.stops.forEach((s,i)=>s.order=i);
-  await window.saveDay(d.id,d);sel=null;
+  window.saveDay(d.id||'day'+d.day,d);sel=null;
   renderItinList();updateItinMap();calcTransits();
 };
 
-window.addStopToDay=async function(dayIdx,place){
+window.addStopToDay=function(dayIdx,place){
   var d=window._days[dayIdx];if(!d.stops)d.stops=[];
   d.stops.push({order:d.stops.length,cat:place.cat,name:place.name,nameEn:place.nameEn||'',lat:place.lat||0,lng:place.lng||0,tm:'',dur:'',note:place.tip||place.menu||''});
-  await window.saveDay(d.id,d);
+  window.saveDay(d.id||'day'+d.day,d);
   closeDayModal();
   cur=dayIdx;sel=null;
   mainTab('itin');renderDays();renderItinList();updateItinMap();
@@ -574,16 +604,17 @@ window.openAdd=function(){
 };
 window.closeModal=function(){document.getElementById('modal').classList.remove('v');};
 
-window.savePlace=async function(){
+window.savePlace=function(){
   var d={cat:document.getElementById('fCat').value,city:document.getElementById('fCity').value,name:document.getElementById('fName').value.trim(),nameEn:document.getElementById('fNameEn').value.trim(),rating:parseFloat(document.getElementById('fRating').value)||0,price:document.getElementById('fPrice').value,hours:document.getElementById('fHours').value.trim(),closed:document.getElementById('fClosed').value.trim(),menu:document.getElementById('fMenu').value.trim(),tip:document.getElementById('fTip').value.trim(),lat:parseFloat(document.getElementById('fLat').value)||0,lng:parseFloat(document.getElementById('fLng').value)||0,visited:false,createdAt:Date.now()};
   if(!d.name){alert('이름을 입력하세요');return;}
   var eid=document.getElementById('modal').dataset.editId;
-  if(eid)await FB.updateDoc(FB.doc(FB.db,PCOL,eid),d);else await FB.addDoc(FB.collection(FB.db,PCOL),d);
-  closeModal();loadAll();
+  if(eid){var idx=window._places.findIndex(x=>x.id===eid);if(idx>=0){d.id=eid;d.visited=window._places[idx].visited;window._places[idx]=d;}}
+  else{d.id='p'+Date.now();window._places.push(d);}
+  savePlaces();closeModal();loadAll();
 };
 
-window.deletePlace=async function(id){if(!confirm('삭제?'))return;await FB.deleteDoc(FB.doc(FB.db,PCOL,id));loadAll();};
-window.toggleVisit=async function(id,cur){await FB.updateDoc(FB.doc(FB.db,PCOL,id),{visited:!cur});loadAll();};
+window.deletePlace=function(id){if(!confirm('삭제?'))return;window._places=window._places.filter(x=>x.id!==id);savePlaces();loadAll();};
+window.toggleVisit=function(id,cur){var p=window._places.find(x=>x.id===id);if(p){p.visited=!cur;savePlaces();loadAll();}};
 window.editPlace=function(id){
   var p=(window._places||[]).find(x=>x.id===id);if(!p)return;
   document.getElementById('modalTitle').textContent='장소 수정';document.getElementById('modal').dataset.editId=id;
@@ -629,3 +660,4 @@ window.initMap=initMap;
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap"></script>
 </body>
 </html>
+
