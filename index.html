@@ -212,12 +212,16 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <!-- EXPORT MODAL -->
 <div class="modal-bg" id="exportModal"><div class="modal">
 <h2>📤 Google Maps에서 열기</h2>
-<p style="font-size:12px;color:var(--dm);margin-bottom:16px">Google Maps 앱에서 동선을 바로 확인할 수 있어요.</p>
-<div style="display:flex;flex-direction:column;gap:8px">
-<button class="mbtn save" onclick="openInGmaps('day')" style="text-align:left;padding:14px">📅 현재 일정 (Day <span id="expDay">1</span>)<br><span style="font-size:11px;font-weight:400;opacity:.7">선택한 날짜의 동선을 Google Maps에서 열기</span></button>
-<button class="mbtn save" onclick="openInGmaps('places')" style="text-align:left;padding:14px">📍 저장소 전체 장소<br><span style="font-size:11px;font-weight:400;opacity:.7">모든 장소를 핀으로 표시</span></button>
+<p style="font-size:12px;color:var(--dm);margin-bottom:12px">탭하면 Google Maps 앱에서 바로 열려요.</p>
+<div style="display:flex;flex-direction:column;gap:6px">
+<button class="mbtn save" onclick="openInGmaps('day')" style="text-align:left;padding:12px">📅 현재 일정 (Day <span id="expDay">1</span>) — 도보 경로</button>
+<div style="font-size:11px;color:var(--dm);margin:6px 0 2px;font-weight:600">📍 저장소 카테고리별</div>
+<button class="mbtn save" onclick="openInGmaps('food')" style="text-align:left;padding:12px">🍽️ 맛집 <span id="expFood" style="font-size:11px;opacity:.6"></span></button>
+<button class="mbtn save" onclick="openInGmaps('cafe')" style="text-align:left;padding:12px">☕ 카페 <span id="expCafe" style="font-size:11px;opacity:.6"></span></button>
+<button class="mbtn save" onclick="openInGmaps('sight')" style="text-align:left;padding:12px">🏛️ 관광지 <span id="expSight" style="font-size:11px;opacity:.6"></span></button>
+<button class="mbtn save" onclick="openInGmaps('lodge')" style="text-align:left;padding:12px">🏨 숙소 <span id="expLodge" style="font-size:11px;opacity:.6"></span></button>
 </div>
-<p style="font-size:10px;color:var(--dm);margin-top:12px">💡 Google Maps 앱이 설치되어 있으면 앱으로, 없으면 웹으로 열려요.<br>⚠️ URL 길이 제한으로 한번에 최대 ~10개 장소까지 표시됩니다.</p>
+<p style="font-size:10px;color:var(--dm);margin-top:10px">💡 앱 설치 시 앱으로, 미설치 시 웹으로 열려요.</p>
 <div class="mbtn-row" style="margin-top:8px"><button class="mbtn cancel" onclick="closeExport()">닫기</button></div>
 </div></div>
 </div>
@@ -664,6 +668,13 @@ window.closeDayModal=function(){document.getElementById('dayModal').classList.re
 // ===== EXPORT: Google Maps URL =====
 window.openExport=function(){
   document.getElementById('expDay').textContent=(cur+1);
+  var places=window._places||[];
+  var counts={food:0,cafe:0,sight:0,lodge:0};
+  places.forEach(function(p){if(counts[p.cat]!==undefined)counts[p.cat]++;});
+  document.getElementById('expFood').textContent=counts.food?'('+counts.food+'개)':'(없음)';
+  document.getElementById('expCafe').textContent=counts.cafe?'('+counts.cafe+'개)':'(없음)';
+  document.getElementById('expSight').textContent=counts.sight?'('+counts.sight+'개)':'(없음)';
+  document.getElementById('expLodge').textContent=counts.lodge?'('+counts.lodge+'개)':'(없음)';
   document.getElementById('exportModal').classList.add('v');
 };
 window.closeExport=function(){document.getElementById('exportModal').classList.remove('v');};
@@ -675,12 +686,13 @@ window.openInGmaps=function(mode){
     if(!d||!d.stops||!d.stops.length){alert('일정이 없어요');return;}
     items=d.stops.filter(function(s){return s.lat&&s.lng;});
   }else{
-    items=(window._places||[]).filter(function(p){return p.lat&&p.lng;});
+    // Category filter: food, cafe, sight, lodge
+    items=(window._places||[]).filter(function(p){return p.cat===mode&&p.lat&&p.lng;});
   }
   if(!items.length){alert('장소가 없어요');return;}
 
   if(mode==='day'&&items.length>=2){
-    // Directions mode for itinerary (shows walking route)
+    // Walking directions for itinerary
     var origin=items[0].lat+','+items[0].lng;
     var dest=items[items.length-1].lat+','+items[items.length-1].lng;
     var wps=items.slice(1,-1).map(function(s){return s.lat+','+s.lng;}).join('|');
@@ -689,10 +701,9 @@ window.openInGmaps=function(mode){
     url+='&travelmode=walking';
     window.open(url,'_blank');
   }else if(items.length===1){
-    var p=items[0];
-    window.open('https://www.google.com/maps/search/?api=1&query='+p.lat+','+p.lng,'_blank');
+    window.open('https://www.google.com/maps/search/?api=1&query='+items[0].lat+','+items[0].lng,'_blank');
   }else{
-    // Multi-stop directions to show all pins
+    // Directions to show pins (max ~10)
     var limited=items.slice(0,10);
     var origin=limited[0].lat+','+limited[0].lng;
     var dest=limited[limited.length-1].lat+','+limited[limited.length-1].lng;
@@ -700,9 +711,6 @@ window.openInGmaps=function(mode){
     var url='https://www.google.com/maps/dir/?api=1&origin='+origin+'&destination='+dest;
     if(wps)url+='&waypoints='+encodeURIComponent(wps);
     window.open(url,'_blank');
-    if(items.length>10){
-      setTimeout(function(){alert('장소가 10개 초과! 처음 10개만 표시했어요.\nDay별로 나눠서 열어주세요.');},500);
-    }
   }
   closeExport();
 };
