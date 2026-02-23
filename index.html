@@ -128,6 +128,14 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .sync-status{font-size:10px;color:var(--dm);margin-top:4px;min-height:14px;transition:opacity .3s}
 .sync-status.ok{color:var(--gn)}.sync-status.err{color:var(--rd)}.sync-status.warn{color:var(--or)}
+/* Google Places Autocomplete */
+.pac-container{background:var(--card)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:10px!important;margin-top:4px!important;font-family:'Noto Sans KR',sans-serif!important;z-index:9999!important;box-shadow:0 8px 24px rgba(0,0,0,.5)!important}
+.pac-item{padding:10px 14px!important;border-top:1px solid rgba(255,255,255,.06)!important;color:var(--tx)!important;font-size:13px!important;cursor:pointer}
+.pac-item:first-child{border-top:none!important}
+.pac-item:hover,.pac-item-selected{background:var(--card2)!important}
+.pac-item-query{color:var(--acc)!important;font-weight:600!important}
+.pac-icon{display:none!important}
+.pac-matched{color:var(--acc)!important}
 </style>
 </head>
 <body>
@@ -191,7 +199,7 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <div class="mrow"><div class="mfield"><label>카테고리</label><select id="fCat"><option value="food">🍽️ 맛집</option><option value="cafe">☕ 카페</option><option value="sight">🏛️ 관광지</option><option value="lodge">🏨 숙소</option></select></div>
 <div class="mfield"><label>도시</label><select id="fCity"><option value="porto">포르투</option><option value="lisbon">리스본</option><option value="sintra">신트라</option></select></div></div>
 <div class="mfield"><label>이름 (한글)</label><input id="fName" placeholder="예: 파스테이스 드 벨렝"></div>
-<div class="mfield"><label>이름 (영문)</label><input id="fNameEn" placeholder="예: Pastéis de Belém"></div>
+<div class="mfield"><label>이름 (영문) — 검색 가능 🔍</label><input id="fNameEn" placeholder="검색: Pastéis de Belém" autocomplete="off"><div id="acHint" style="font-size:10px;color:var(--acc);margin-top:3px;display:none">📍 선택하면 좌표·평점 자동 입력</div></div>
 <div class="mrow"><div class="mfield"><label>평점</label><input id="fRating" type="number" step="0.1" min="0" max="5" placeholder="4.8"></div>
 <div class="mfield"><label>가격대</label><select id="fPrice"><option value="">선택</option><option value="€">€</option><option value="€€">€€</option><option value="€€€">€€€</option><option value="무료">무료</option></select></div></div>
 <div class="mrow"><div class="mfield"><label>영업시간</label><input id="fHours" placeholder="10:00~22:00"></div>
@@ -724,9 +732,45 @@ function initMap(){
   dRenderer=new google.maps.DirectionsRenderer({suppressMarkers:true,polylineOptions:{strokeColor:'#e8a838',strokeWeight:4,strokeOpacity:0.8}});
   dRenderer.setMap(gmap);
   pmap=new google.maps.Map(document.getElementById('pmap'),{center:{lat:39.5,lng:-8.5},zoom:7,styles:darkStyle,disableDefaultUI:true,zoomControl:true,fullscreenControl:true});
+
+  // Places Autocomplete
+  var acInput=document.getElementById('fNameEn');
+  var ac=new google.maps.places.Autocomplete(acInput,{
+    types:['establishment'],
+    fields:['name','formatted_address','geometry','rating','types','place_id'],
+    componentRestrictions:{country:'pt'}
+  });
+  // Show hint when typing
+  acInput.addEventListener('input',function(){
+    document.getElementById('acHint').style.display=this.value.length>1?'block':'none';
+  });
+  ac.addListener('place_changed',function(){
+    var place=ac.getPlace();
+    if(!place||!place.geometry)return;
+    // Fill English name
+    document.getElementById('fNameEn').value=place.name||'';
+    // Fill coordinates
+    document.getElementById('fLat').value=place.geometry.location.lat().toFixed(7);
+    document.getElementById('fLng').value=place.geometry.location.lng().toFixed(7);
+    // Fill rating
+    if(place.rating)document.getElementById('fRating').value=place.rating;
+    // Auto-detect city from address
+    var addr=(place.formatted_address||'').toLowerCase();
+    if(addr.indexOf('porto')>=0||addr.indexOf('gaia')>=0)document.getElementById('fCity').value='porto';
+    else if(addr.indexOf('sintra')>=0)document.getElementById('fCity').value='sintra';
+    else if(addr.indexOf('lisbon')>=0||addr.indexOf('lisboa')>=0)document.getElementById('fCity').value='lisbon';
+    // Auto-detect category from types
+    var types=(place.types||[]).join(',');
+    if(types.indexOf('restaurant')>=0||types.indexOf('food')>=0||types.indexOf('meal')>=0||types.indexOf('bakery')>=0)document.getElementById('fCat').value='food';
+    else if(types.indexOf('cafe')>=0)document.getElementById('fCat').value='cafe';
+    else if(types.indexOf('lodging')>=0||types.indexOf('hotel')>=0)document.getElementById('fCat').value='lodge';
+    else if(types.indexOf('tourist')>=0||types.indexOf('museum')>=0||types.indexOf('church')>=0||types.indexOf('park')>=0)document.getElementById('fCat').value='sight';
+    // Hide hint
+    document.getElementById('acHint').style.display='none';
+  });
 }
 window.initMap=initMap;
 </script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&libraries=places&callback=initMap"></script>
 </body>
 </html>
