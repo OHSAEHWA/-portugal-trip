@@ -116,10 +116,10 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <!-- ITINERARY -->
 <div class="panel v" id="itinPanel">
 <div class="days" id="dy"></div>
-<div class="vt"><button class="vb on" onclick="itinView('map')" id="iv1">🗺 지도</button><button class="vb" onclick="itinView('list')" id="iv2">📋 일정</button></div>
+<div class="vt"><button class="vb" onclick="itinView('map')" id="iv1">🗺 지도</button><button class="vb on" onclick="itinView('list')" id="iv2">📋 일정</button></div>
 <div class="ict">
-<div class="lw" id="lw"><div id="ls"></div></div>
-<div class="mw v" id="mw"><div id="map"></div>
+<div class="lw v" id="lw"><div id="ls"></div></div>
+<div class="mw" id="mw"><div id="map"></div>
 <div class="lgd"><span><i style="background:var(--bl)"></i>관광</span><span><i style="background:var(--gn)"></i>맛집</span><span><i style="background:var(--or)"></i>숙소</span><span><i style="background:var(--pp)"></i>교통</span></div>
 </div></div></div>
 <!-- PLACES -->
@@ -436,7 +436,7 @@ window.itinView=function(v){
   document.getElementById('iv1').classList.toggle('on',v==='map');
   document.getElementById('iv2').classList.toggle('on',v==='list');
   mw.classList.toggle('v',v==='map');lw.classList.toggle('v',v==='list');
-  if(v==='map')setTimeout(()=>google.maps.event.trigger(gmap,'resize'),100);
+  if(v==='map')setTimeout(function(){google.maps.event.trigger(gmap,'resize');updateItinMap();},150);
 };
 
 // ===== PLACES =====
@@ -553,3 +553,4 @@ window.initMap=initMap;
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap"></script>
 </body>
 </html>
+
