@@ -211,14 +211,14 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 </div></div>
 <!-- EXPORT MODAL -->
 <div class="modal-bg" id="exportModal"><div class="modal">
-<h2>📤 Google Maps로 내보내기</h2>
-<p style="font-size:12px;color:var(--dm);margin-bottom:16px">KML 파일로 내보내면 Google Maps 앱에서 핀을 볼 수 있어요.</p>
+<h2>📤 Google Maps에서 열기</h2>
+<p style="font-size:12px;color:var(--dm);margin-bottom:16px">Google Maps 앱에서 동선을 바로 확인할 수 있어요.</p>
 <div style="display:flex;flex-direction:column;gap:8px">
-<button class="mbtn save" onclick="exportKML('day')" style="text-align:left;padding:14px">📅 현재 일정 (Day <span id="expDay">1</span>) 내보내기<br><span style="font-size:11px;font-weight:400;opacity:.7">선택한 날짜의 동선을 내보냅니다</span></button>
-<button class="mbtn save" onclick="exportKML('alldays')" style="text-align:left;padding:14px">📅 전체 일정 (Day 1~8) 내보내기<br><span style="font-size:11px;font-weight:400;opacity:.7">8일 전체 일정을 Day별 폴더로 내보냅니다</span></button>
-<button class="mbtn save" onclick="exportKML('places')" style="text-align:left;padding:14px">📍 저장소 전체 내보내기<br><span style="font-size:11px;font-weight:400;opacity:.7">맛집/카페/관광지/숙소 모든 장소</span></button>
+<button class="mbtn save" onclick="openInGmaps('day')" style="text-align:left;padding:14px">📅 현재 일정 (Day <span id="expDay">1</span>)<br><span style="font-size:11px;font-weight:400;opacity:.7">선택한 날짜의 동선을 Google Maps에서 열기</span></button>
+<button class="mbtn save" onclick="openInGmaps('places')" style="text-align:left;padding:14px">📍 저장소 전체 장소<br><span style="font-size:11px;font-weight:400;opacity:.7">모든 장소를 핀으로 표시</span></button>
 </div>
-<div class="mbtn-row" style="margin-top:12px"><button class="mbtn cancel" onclick="closeExport()">닫기</button></div>
+<p style="font-size:10px;color:var(--dm);margin-top:12px">💡 Google Maps 앱이 설치되어 있으면 앱으로, 없으면 웹으로 열려요.<br>⚠️ URL 길이 제한으로 한번에 최대 ~10개 장소까지 표시됩니다.</p>
+<div class="mbtn-row" style="margin-top:8px"><button class="mbtn cancel" onclick="closeExport()">닫기</button></div>
 </div></div>
 </div>
 
@@ -661,79 +661,48 @@ window.openDayModal=function(){
 };
 window.closeDayModal=function(){document.getElementById('dayModal').classList.remove('v');};
 
-// ===== EXPORT KML =====
+// ===== EXPORT: Google Maps URL =====
 window.openExport=function(){
   document.getElementById('expDay').textContent=(cur+1);
   document.getElementById('exportModal').classList.add('v');
 };
 window.closeExport=function(){document.getElementById('exportModal').classList.remove('v');};
 
-function catStyle(c){return c==='food'?'restaurant':c==='cafe'?'cafe':c==='lodge'?'lodging':'default';}
-function catColorHex(c){return c==='food'?'ff54c722':c==='cafe'?'ff9e4cec':c==='lodge'?'ff0b9ef5':'fff68b3b';}
-
-function buildKML(name,folders){
-  var kml='<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">\n<Document>\n<name>'+esc(name)+'</name>\n';
-  // Styles
-  ['food','cafe','sight','lodge'].forEach(function(c){
-    kml+='<Style id="'+catStyle(c)+'"><IconStyle><color>'+catColorHex(c)+'</color><scale>1.2</scale><Icon><href>http://maps.google.com/mapfiles/kml/paddle/'+
-    (c==='food'?'red':c==='cafe'?'pink':c==='lodge'?'orange':'blu')+'-circle.png</href></Icon></IconStyle></Style>\n';
-  });
-  folders.forEach(function(f){
-    kml+='<Folder>\n<name>'+esc(f.name)+'</name>\n';
-    f.items.forEach(function(p,i){
-      var desc='';
-      if(p.tm)desc+='⏰ '+p.tm+' ';
-      if(p.dur)desc+=p.dur+'\n';
-      if(p.menu)desc+='🍴 '+p.menu+'\n';
-      if(p.tip)desc+='💡 '+p.tip+'\n';
-      if(p.note)desc+='📝 '+p.note+'\n';
-      if(p.price)desc+='💰 '+p.price+' ';
-      if(p.rating)desc+='★ '+p.rating+' ';
-      if(p.closed)desc+='휴무 '+p.closed;
-      kml+='<Placemark>\n<name>'+(f.numbered?(i+1)+'. ':'')+esc(p.name||'')+'</name>\n';
-      if(p.nameEn)kml+='<description>'+esc((p.nameEn||'')+'\n'+desc.trim())+'</description>\n';
-      else if(desc)kml+='<description>'+esc(desc.trim())+'</description>\n';
-      kml+='<styleUrl>#'+catStyle(p.cat||'sight')+'</styleUrl>\n';
-      if(p.lat&&p.lng)kml+='<Point><coordinates>'+p.lng+','+p.lat+',0</coordinates></Point>\n';
-      kml+='</Placemark>\n';
-    });
-    kml+='</Folder>\n';
-  });
-  kml+='</Document>\n</kml>';
-  return kml;
-}
-
-function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function downloadKML(filename,content){
-  var blob=new Blob([content],{type:'application/vnd.google-earth.kml+xml'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-window.exportKML=function(mode){
-  var days=window._days||[];
-  var places=window._places||[];
+window.openInGmaps=function(mode){
+  var items=[];
   if(mode==='day'){
-    var d=days[cur];if(!d){alert('일정 없음');return;}
-    var kml=buildKML('Day '+d.day+' '+d.sub,[{name:'Day '+d.day+' — '+d.title,items:d.stops||[],numbered:true}]);
-    downloadKML('portugal-day'+d.day+'.kml',kml);
-  }else if(mode==='alldays'){
-    var folders=days.map(function(d){return{name:'Day '+d.day+' — '+d.title,items:d.stops||[],numbered:true};});
-    var kml=buildKML('포르투갈 8일 전체 일정',folders);
-    downloadKML('portugal-itinerary.kml',kml);
+    var d=(window._days||[])[cur];
+    if(!d||!d.stops||!d.stops.length){alert('일정이 없어요');return;}
+    items=d.stops.filter(function(s){return s.lat&&s.lng;});
   }else{
-    var bycat={food:[],cafe:[],sight:[],lodge:[]};
-    places.forEach(function(p){(bycat[p.cat]||bycat.sight).push(p);});
-    var folders=[];
-    if(bycat.food.length)folders.push({name:'🍽️ 맛집',items:bycat.food});
-    if(bycat.cafe.length)folders.push({name:'☕ 카페',items:bycat.cafe});
-    if(bycat.sight.length)folders.push({name:'🏛️ 관광지',items:bycat.sight});
-    if(bycat.lodge.length)folders.push({name:'🏨 숙소',items:bycat.lodge});
-    var kml=buildKML('포르투갈 여행 저장소',folders);
-    downloadKML('portugal-places.kml',kml);
+    items=(window._places||[]).filter(function(p){return p.lat&&p.lng;});
+  }
+  if(!items.length){alert('장소가 없어요');return;}
+
+  if(mode==='day'&&items.length>=2){
+    // Directions mode for itinerary (shows walking route)
+    var origin=items[0].lat+','+items[0].lng;
+    var dest=items[items.length-1].lat+','+items[items.length-1].lng;
+    var wps=items.slice(1,-1).map(function(s){return s.lat+','+s.lng;}).join('|');
+    var url='https://www.google.com/maps/dir/?api=1&origin='+origin+'&destination='+dest;
+    if(wps)url+='&waypoints='+encodeURIComponent(wps);
+    url+='&travelmode=walking';
+    window.open(url,'_blank');
+  }else if(items.length===1){
+    var p=items[0];
+    window.open('https://www.google.com/maps/search/?api=1&query='+p.lat+','+p.lng,'_blank');
+  }else{
+    // Multi-stop directions to show all pins
+    var limited=items.slice(0,10);
+    var origin=limited[0].lat+','+limited[0].lng;
+    var dest=limited[limited.length-1].lat+','+limited[limited.length-1].lng;
+    var wps=limited.slice(1,-1).map(function(s){return s.lat+','+s.lng;}).join('|');
+    var url='https://www.google.com/maps/dir/?api=1&origin='+origin+'&destination='+dest;
+    if(wps)url+='&waypoints='+encodeURIComponent(wps);
+    window.open(url,'_blank');
+    if(items.length>10){
+      setTimeout(function(){alert('장소가 10개 초과! 처음 10개만 표시했어요.\nDay별로 나눠서 열어주세요.');},500);
+    }
   }
   closeExport();
 };
