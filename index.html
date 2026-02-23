@@ -2,283 +2,554 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>포르투갈 8일 여행</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#101820;--card:#1a2535;--acc:#e8a838;--tx:#eae8e3;--dm:#7a8a9a;--bl:#3b82f6;--gn:#22c55e;--pp:#a855f7;--rd:#ef4444;--or:#f59e0b;--tl:#14b8a6}
+:root{--bg:#101820;--card:#1a2535;--card2:#1f2f42;--acc:#e8a838;--tx:#eae8e3;--dm:#7a8a9a;--bl:#3b82f6;--gn:#22c55e;--pp:#a855f7;--rd:#ef4444;--or:#f59e0b;--pk:#ec4899;--tl:#14b8a6}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx)}
 .app{display:flex;flex-direction:column;height:100dvh}
 .top{padding:max(env(safe-area-inset-top),8px) 16px 0;background:var(--bg);z-index:50}
-.top h1{font-size:17px;font-weight:700;color:var(--acc)}
-.top p{font-size:11px;color:var(--dm);margin-top:2px}
-.days{display:flex;gap:6px;padding:10px 16px 8px;overflow-x:auto;scrollbar-width:none;background:var(--bg);z-index:40}
-.days::-webkit-scrollbar{display:none}
-.db{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:0;color:var(--dm);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s;white-space:nowrap}
+.top h1{font-size:17px;font-weight:700;color:var(--acc)}.top p{font-size:11px;color:var(--dm);margin-top:2px}
+.mtabs{display:flex;margin:8px 16px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.mtab{flex:1;padding:9px 0;text-align:center;font-size:13px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer;transition:.2s}
+.mtab.on{background:rgba(232,168,56,.15);color:var(--acc)}
+.panel{display:none;flex-direction:column;flex:1;overflow:hidden}.panel.v{display:flex}
+.days{display:flex;gap:6px;padding:10px 16px 8px;overflow-x:auto;scrollbar-width:none}.days::-webkit-scrollbar{display:none}
+.db{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:0;color:var(--dm);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}
 .db.on{background:var(--acc);color:#000;border-color:var(--acc)}
 .db .c{font-size:10px;font-weight:400;opacity:.7}
 .vt{display:flex;margin:0 16px 8px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
-.vb{flex:1;padding:7px 0;text-align:center;font-size:12px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer;transition:.2s}
+.vb{flex:1;padding:7px 0;text-align:center;font-size:12px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer}
 .vb.on{background:rgba(232,168,56,.15);color:var(--acc)}
 .mw{flex:1;position:relative;display:none}.mw.v{display:block}
-#map{width:100%;height:100%}
-.lw{flex:1;overflow-y:auto;display:none;padding:0 12px calc(80px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
-.lw.v{display:block}
-@media(min-width:768px){.vt{display:none}.ct{display:flex;flex:1;overflow:hidden}.lw{display:block!important;width:400px;min-width:400px;border-right:1px solid rgba(255,255,255,.06);padding-bottom:40px}.mw{display:block!important;flex:1}}
+#map,#pmap{width:100%;height:100%}
+.lw{flex:1;overflow-y:auto;display:none;padding:0 12px 120px;-webkit-overflow-scrolling:touch}.lw.v{display:block}
+@media(min-width:768px){.vt{display:none}.ict,.pcontent{display:flex;flex:1;overflow:hidden}.lw,.plist{display:block!important;width:400px;min-width:400px;border-right:1px solid rgba(255,255,255,.06);padding-bottom:40px}.mw{display:block!important;flex:1}#pmap{display:block!important;flex:1}}
 .dh{padding:12px 4px 8px}.dh h2{font-size:16px;font-weight:700;color:var(--acc)}.dh p{font-size:12px;color:var(--dm);line-height:1.5;margin-top:4px}
-.st{display:flex;gap:10px;padding:12px 10px;border-radius:10px;cursor:pointer;transition:.15s}
-.st:active,.st.on{background:#1f2f42}
+/* Stop card */
+.st{display:flex;gap:10px;padding:12px 10px;border-radius:10px;cursor:pointer;transition:.15s;position:relative}
+.st:active,.st.on{background:var(--card2)}
 .sn{width:30px;height:30px;min-width:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;margin-top:1px}
-.sn.sight{background:var(--bl)}.sn.food{background:var(--gn)}.sn.transport-marker{background:var(--pp)}
+.sn.sight{background:var(--bl)}.sn.food{background:var(--gn)}.sn.cafe{background:var(--pk)}.sn.lodge{background:var(--or)}.sn.transport-marker{background:var(--pp)}
 .si{flex:1;min-width:0}
 .nm{font-size:13px;font-weight:600;line-height:1.35}.ne{font-size:11px;color:var(--dm);font-weight:400}
 .sm{display:flex;gap:8px;margin-top:3px;font-size:11px;color:var(--dm)}.sm .tm{color:var(--acc);font-weight:600}
 .tg{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
 .tg span{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
-.tg .rt{background:rgba(232,168,56,.12);color:var(--acc)}
-.tg .pr{background:rgba(34,197,94,.12);color:var(--gn)}
-.tg .cl{background:rgba(239,68,68,.12);color:var(--rd)}
-.tg .wr{background:rgba(245,158,11,.12);color:var(--or)}
+.tg .rt{background:rgba(232,168,56,.12);color:var(--acc)}.tg .pr{background:rgba(34,197,94,.12);color:var(--gn)}.tg .cl{background:rgba(239,68,68,.12);color:var(--rd)}.tg .wr{background:rgba(245,158,11,.12);color:var(--or)}
 .nt{font-size:11px;color:var(--dm);line-height:1.55;margin-top:6px;display:none}
 .st.on .nt{display:block}
+.st-actions{display:none;gap:4px;margin-top:6px}
+.st.on .st-actions{display:flex}
+.sa{padding:4px 8px;border-radius:5px;border:none;font-size:10px;font-family:inherit;cursor:pointer;font-weight:500}
+.sa.up{background:rgba(59,130,246,.1);color:var(--bl)}.sa.down{background:rgba(59,130,246,.1);color:var(--bl)}
+.sa.del{background:rgba(239,68,68,.1);color:var(--rd)}
+/* Transport */
 .tl{display:flex;padding:0 0 0 24px;min-height:6px}.tl-b{width:2px;background:rgba(255,255,255,.06)}
 .tp{display:flex;align-items:flex-start;gap:8px;padding:4px 0 4px 15px}
 .ti{width:22px;height:22px;min-width:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px}
-.ti.walk{background:rgba(59,130,246,.12);color:var(--bl)}
-.ti.metro{background:rgba(245,158,11,.12);color:var(--or)}
-.ti.bus{background:rgba(168,85,247,.12);color:var(--pp)}
-.ti.tram{background:rgba(245,158,11,.12);color:var(--or)}
-.ti.train{background:rgba(20,184,166,.12);color:var(--tl)}
+.ti.walk{background:rgba(59,130,246,.12);color:var(--bl)}.ti.metro{background:rgba(245,158,11,.12);color:var(--or)}.ti.bus{background:rgba(168,85,247,.12);color:var(--pp)}.ti.tram{background:rgba(245,158,11,.12);color:var(--or)}.ti.drive{background:rgba(20,184,166,.12);color:var(--tl)}.ti.transit{background:rgba(168,85,247,.12);color:var(--pp)}
 .tt{font-size:11px;color:var(--dm);line-height:1.45}.tt b{color:var(--tx);font-weight:600}
 .lgd{position:absolute;bottom:16px;left:12px;right:12px;z-index:5;display:flex;gap:12px;justify-content:center;background:rgba(16,24,32,.9);backdrop-filter:blur(8px);border-radius:10px;padding:8px 16px;border:1px solid rgba(255,255,255,.06)}
-.lgd span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dm)}
-.lgd i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.lgd span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dm)}.lgd i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .gm-style-iw{max-width:280px!important}
-.iw{font-family:'Noto Sans KR',sans-serif;padding:2px}
-.iw h3{font-size:14px;margin-bottom:3px;color:#222}.iw .sub{font-size:11px;color:#888;margin-bottom:4px}.iw p{font-size:12px;color:#555;line-height:1.5;margin-bottom:2px}
+.iw{font-family:'Noto Sans KR',sans-serif;padding:2px}.iw h3{font-size:14px;margin-bottom:3px;color:#222}.iw .sub{font-size:11px;color:#888;margin-bottom:4px}.iw p{font-size:12px;color:#555;line-height:1.5;margin-bottom:2px}
+/* Places panel */
+.pbar{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap}
+.pbtn{padding:5px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:0;color:var(--dm);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer}
+.pbtn.on{border-color:var(--acc);color:var(--acc);background:rgba(232,168,56,.1)}
+.pview{display:flex;margin:8px 16px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.pvb{flex:1;padding:7px;text-align:center;font-size:12px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer}.pvb.on{background:rgba(232,168,56,.15);color:var(--acc)}
+.pcontent{display:flex;flex:1;overflow:hidden}
+.plist{flex:1;overflow-y:auto;padding:8px 12px 120px;-webkit-overflow-scrolling:touch}
+#pmap{display:none}
+.pcard{background:var(--card);border-radius:12px;padding:14px;margin-bottom:8px}
+.pcard.visited{opacity:.5}
+.pcard-top{display:flex;align-items:flex-start;gap:10px}
+.pcard-icon{width:36px;height:36px;min-width:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.pcard-icon.food{background:rgba(34,197,94,.15)}.pcard-icon.cafe{background:rgba(236,72,153,.15)}.pcard-icon.sight{background:rgba(59,130,246,.15)}.pcard-icon.lodge{background:rgba(245,158,11,.15)}
+.pcard-info{flex:1;min-width:0}
+.pcard-name{font-size:14px;font-weight:600}.pcard-en{font-size:11px;color:var(--dm)}
+.pcard-meta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.pcard-meta span{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.pcard-detail{margin-top:8px;font-size:11px;color:var(--dm);line-height:1.6}
+.pcard-detail div{margin-bottom:3px}
+.pcard-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.pact{padding:5px 10px;border-radius:6px;border:none;font-size:11px;font-family:inherit;cursor:pointer;font-weight:500}
+.pact.visit{background:rgba(34,197,94,.15);color:var(--gn)}.pact.visit.done{background:rgba(34,197,94,.3);color:#fff}
+.pact.del{background:rgba(239,68,68,.1);color:var(--rd)}
+.pact.mapbtn{background:rgba(59,130,246,.1);color:var(--bl)}
+.pact.additin{background:rgba(232,168,56,.15);color:var(--acc)}
+.add-btn{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--acc);color:#000;font-size:24px;border:none;box-shadow:0 4px 16px rgba(0,0,0,.4);cursor:pointer;z-index:100;display:none}
+.panel.v .add-btn{display:block}
+/* Day add stop btn */
+.add-stop{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;margin:8px 4px;border-radius:10px;border:1px dashed rgba(255,255,255,.1);background:0;color:var(--dm);font-size:12px;font-family:inherit;cursor:pointer;width:calc(100% - 8px)}
+.add-stop:active{background:var(--card2)}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-end;justify-content:center}.modal-bg.v{display:flex}
+.modal{background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:24px 20px calc(20px + env(safe-area-inset-bottom))}
+.modal h2{font-size:17px;font-weight:700;color:var(--acc);margin-bottom:16px}
+.mfield{margin-bottom:12px}.mfield label{display:block;font-size:12px;color:var(--dm);margin-bottom:4px;font-weight:500}
+.mfield input,.mfield textarea,.mfield select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:var(--bg);color:var(--tx);font-size:13px;font-family:inherit;outline:none}
+.mfield textarea{height:60px;resize:none}.mfield select{-webkit-appearance:none}
+.mrow{display:flex;gap:8px}.mrow .mfield{flex:1}
+.mbtn-row{display:flex;gap:8px;margin-top:16px}
+.mbtn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+.mbtn.save{background:var(--acc);color:#000}.mbtn.cancel{background:rgba(255,255,255,.08);color:var(--dm)}
+/* Day picker modal */
+.daypick{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.daypick button{padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:var(--bg);color:var(--tx);font-size:13px;font-family:inherit;cursor:pointer}
+.daypick button:active{background:var(--acc);color:#000}
+.empty{text-align:center;padding:60px 20px;color:var(--dm);font-size:13px}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="top"><h1>🇵🇹 포르투갈 8일 여행</h1><p>포르투 3일 + 리스본 5일 · 여유로운 미식 여행</p></div>
+<div class="top"><h1>🇵🇹 포르투갈 8일 여행</h1><p>포르투 3일 + 리스본 5일</p></div>
+<div class="mtabs">
+<button class="mtab on" onclick="mainTab('itin')" id="mt1">📅 일정</button>
+<button class="mtab" onclick="mainTab('places')" id="mt2">📍 저장소</button>
+</div>
+<!-- ITINERARY -->
+<div class="panel v" id="itinPanel">
 <div class="days" id="dy"></div>
-<div class="vt"><button class="vb on" onclick="sv('map')" id="vm">🗺 지도</button><button class="vb" onclick="sv('list')" id="vl">📋 일정</button></div>
-<div class="ct">
+<div class="vt"><button class="vb on" onclick="itinView('map')" id="iv1">🗺 지도</button><button class="vb" onclick="itinView('list')" id="iv2">📋 일정</button></div>
+<div class="ict">
 <div class="lw" id="lw"><div id="ls"></div></div>
 <div class="mw v" id="mw"><div id="map"></div>
-<div class="lgd">
-<span><i style="background:var(--bl)"></i>관광</span>
-<span><i style="background:var(--gn)"></i>맛집</span>
-<span><i style="background:var(--pp)"></i>교통</span>
-<span><i style="background:0;border:2px solid var(--acc);width:7px;height:7px;border-radius:50%"></i>경로</span>
+<div class="lgd"><span><i style="background:var(--bl)"></i>관광</span><span><i style="background:var(--gn)"></i>맛집</span><span><i style="background:var(--or)"></i>숙소</span><span><i style="background:var(--pp)"></i>교통</span></div>
+</div></div></div>
+<!-- PLACES -->
+<div class="panel" id="placesPanel">
+<div class="pbar" id="pbar">
+<button class="pbtn on" onclick="pf('all',this)">전체</button>
+<button class="pbtn" onclick="pf('food',this)">🍽️ 맛집</button>
+<button class="pbtn" onclick="pf('cafe',this)">☕ 카페</button>
+<button class="pbtn" onclick="pf('sight',this)">🏛️ 관광지</button>
+<button class="pbtn" onclick="pf('lodge',this)">🏨 숙소</button>
+<button class="pbtn" onclick="pf('porto',this)">포르투</button>
+<button class="pbtn" onclick="pf('lisbon',this)">리스본</button>
+<button class="pbtn" onclick="pf('visited',this)">✅ 방문</button>
+</div>
+<div class="pview"><button class="pvb on" onclick="placeView('list')" id="pv1">📋 목록</button><button class="pvb" onclick="placeView('map')" id="pv2">🗺 지도</button></div>
+<div class="pcontent">
+<div class="plist" id="plist"></div>
+<div id="pmap"></div>
+</div>
+<button class="add-btn" onclick="openAdd()">+</button>
+</div>
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modal"><div class="modal">
+<h2 id="modalTitle">새 장소 추가</h2>
+<div class="mrow"><div class="mfield"><label>카테고리</label><select id="fCat"><option value="food">🍽️ 맛집</option><option value="cafe">☕ 카페</option><option value="sight">🏛️ 관광지</option><option value="lodge">🏨 숙소</option></select></div>
+<div class="mfield"><label>도시</label><select id="fCity"><option value="porto">포르투</option><option value="lisbon">리스본</option><option value="sintra">신트라</option></select></div></div>
+<div class="mfield"><label>이름 (한글)</label><input id="fName" placeholder="예: 파스테이스 드 벨렝"></div>
+<div class="mfield"><label>이름 (영문)</label><input id="fNameEn" placeholder="예: Pastéis de Belém"></div>
+<div class="mrow"><div class="mfield"><label>평점</label><input id="fRating" type="number" step="0.1" min="0" max="5" placeholder="4.8"></div>
+<div class="mfield"><label>가격대</label><select id="fPrice"><option value="">선택</option><option value="€">€</option><option value="€€">€€</option><option value="€€€">€€€</option><option value="무료">무료</option></select></div></div>
+<div class="mrow"><div class="mfield"><label>영업시간</label><input id="fHours" placeholder="10:00~22:00"></div>
+<div class="mfield"><label>휴무일</label><input id="fClosed" placeholder="월,일"></div></div>
+<div class="mfield"><label>추천메뉴/하이라이트</label><input id="fMenu" placeholder="프란세지냐, 대구요리"></div>
+<div class="mfield"><label>한줄팁</label><textarea id="fTip" placeholder="예약 필수! 18시 오픈."></textarea></div>
+<div class="mrow"><div class="mfield"><label>위도</label><input id="fLat" type="number" step="any" placeholder="38.697"></div>
+<div class="mfield"><label>경도</label><input id="fLng" type="number" step="any" placeholder="-9.203"></div></div>
+<p style="font-size:10px;color:var(--dm);margin-top:-4px">💡 Google Maps에서 장소 길게 누르면 좌표 복사 가능</p>
+<div class="mbtn-row"><button class="mbtn cancel" onclick="closeModal()">취소</button><button class="mbtn save" onclick="savePlace()">저장</button></div>
 </div></div>
+<!-- DAY PICKER MODAL -->
+<div class="modal-bg" id="dayModal"><div class="modal">
+<h2>어느 날에 추가할까요?</h2>
+<div class="daypick" id="dayPick"></div>
+<div class="mbtn-row"><button class="mbtn cancel" onclick="closeDayModal()">취소</button></div>
 </div></div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import{getFirestore,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc,writeBatch}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+const app=initializeApp({apiKey:"AIzaSyC5M014PkaOMBGHrWVQP6Q_wb6zOb7I0qs",authDomain:"gosuchatapp.firebaseapp.com",projectId:"gosuchatapp",storageBucket:"gosuchatapp.firebasestorage.app",messagingSenderId:"629416132349",appId:"1:629416132349:web:52c704d8740b1d59464894"});
+const db=getFirestore(app);
+const auth=getAuth(app);
+signInAnonymously(auth).catch(e=>console.log(e));
+
+window.FB={db,collection,addDoc,getDocs,deleteDoc,doc,updateDoc,setDoc,writeBatch};
+window.PCOL='portugalPlaces';
+window.ICOL='portugalItinerary';
+
+// ===== SEED DATA =====
+const SEED_PLACES=[
+{cat:"food",city:"porto",name:"VOLTARIA",nameEn:"Petisqueira Voltaria",rating:4.8,price:"€",closed:"수,일",menu:"프란세지냐, 대구요리",tip:"가정식 요리. 줄 서지만 가치 있음!",lat:41.1444161,lng:-8.6122994,visited:false},
+{cat:"food",city:"porto",name:"The Door",nameEn:"The Door Porto",rating:4.8,price:"€€",menu:"테이스팅 코스",tip:"예약 필수 (18시 오픈).",lat:41.1441961,lng:-8.616688,visited:false},
+{cat:"food",city:"porto",name:"Bota & Bira",nameEn:"Bota & Bira",rating:4.8,price:"€€",closed:"월,일",menu:"립아이, 문어",tip:"스테이크 전문. 예약!",lat:41.1424129,lng:-8.6158059,visited:false},
+{cat:"food",city:"porto",name:"Taberna Dos Mercadores",nameEn:"Taberna Dos Mercadores",rating:4.5,price:"€€",closed:"월",menu:"문어밥",tip:"16석뿐!",lat:41.1413291,lng:-8.6129202,visited:false},
+{cat:"food",city:"porto",name:"Brasão Aliados",nameEn:"Brasão Aliados",rating:4.6,price:"€€",menu:"프란세지냐",tip:"3/4 사이즈 1인 충분.",lat:41.1491541,lng:-8.6117884,visited:false},
+{cat:"food",city:"porto",name:"A Despensa",nameEn:"A Despensa",rating:4.8,price:"€€",closed:"월",menu:"파스타, 라자냐",tip:"미쉐린급. 19시 오픈.",lat:41.147249,lng:-8.613547,visited:false},
+{cat:"food",city:"lisbon",name:"Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",rating:4.7,price:"€",menu:"문어+고구마매시, 마늘새우",tip:"알파마 숨은 맛집!",lat:38.7136987,lng:-9.1244447,visited:false},
+{cat:"food",city:"lisbon",name:"A Nossa Casa",nameEn:"A Nossa Casa",rating:4.8,price:"€€",menu:"타르타르, 문어",tip:"24석. 18:30 예약!",lat:38.7118452,lng:-9.1449444,visited:false},
+{cat:"food",city:"lisbon",name:"파스테이스 드 벨렝",nameEn:"Pastéis de Belém",rating:4.6,price:"€",menu:"에그타르트",tip:"아침에 줄 짧아요!",lat:38.6975105,lng:-9.203228,visited:false},
+{cat:"food",city:"lisbon",name:"Time Out Market",nameEn:"Time Out Market",rating:4.4,price:"€€~€€€",menu:"다양한 음식",tip:"한곳에서 다양하게.",lat:38.7070608,lng:-9.1456691,visited:false},
+{cat:"food",city:"lisbon",name:"Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",rating:4.5,price:"€",menu:"오징어+감자",tip:"가성비 로컬.",lat:38.710951,lng:-9.130052,visited:false},
+{cat:"food",city:"lisbon",name:"Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",rating:4.4,price:"€€€",closed:"월",menu:"타이거새우, 마늘게",tip:"번호표 대기.",lat:38.720257,lng:-9.135743,visited:false},
+{cat:"food",city:"lisbon",name:"Augusto Lisboa",nameEn:"Augusto Lisboa",rating:4.8,price:"€€",menu:"스크램블에그, 팬케이크",tip:"브런치 맛집.",lat:38.714425,lng:-9.130207,visited:false},
+{cat:"food",city:"lisbon",name:"Copo de Mar",nameEn:"Copo de Mar",rating:4.8,price:"€€",closed:"일",menu:"대구, 문어",tip:"피날레 디너! 예약!",lat:38.739801,lng:-9.149103,visited:false},
+{cat:"sight",city:"porto",name:"상벤투 기차역",nameEn:"Estação São Bento",rating:4.7,price:"무료",menu:"아줄레주 타일",tip:"2만 개 푸른 타일.",lat:41.145492,lng:-8.609544,visited:false},
+{cat:"sight",city:"porto",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",rating:4.6,price:"€10",menu:"240계단 전망대",tip:"포르투 최고 전망!",lat:41.1456705,lng:-8.6145977,visited:false},
+{cat:"sight",city:"porto",name:"리브라리아 렐루",nameEn:"Livraria Lello",rating:4.0,price:"€8",menu:"아름다운 서점",tip:"사전 예약 필수!",lat:41.146905,lng:-8.614774,visited:false},
+{cat:"sight",city:"porto",name:"리베이라 지구",nameEn:"Cais da Ribeira",rating:4.8,price:"무료",menu:"UNESCO 유산",tip:"도우로 강변 산책.",lat:41.14041,lng:-8.612566,visited:false},
+{cat:"sight",city:"porto",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",rating:4.8,price:"무료",menu:"파노라마 뷰",tip:"상층으로 걸어서!",lat:41.139959,lng:-8.609449,visited:false},
+{cat:"sight",city:"lisbon",name:"상 조르제 성",nameEn:"Castelo de São Jorge",rating:4.5,price:"€15",menu:"파노라마 뷰",tip:"Lisboa Card 무료.",lat:38.713909,lng:-9.133476,visited:false},
+{cat:"sight",city:"lisbon",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",rating:4.5,price:"€10",closed:"월",menu:"마누엘 양식",tip:"온라인 예약!",lat:38.6978909,lng:-9.206704,visited:false},
+{cat:"sight",city:"lisbon",name:"오세아나리움",nameEn:"Oceanário de Lisboa",rating:4.7,price:"€25~29",menu:"해달, 해파리",tip:"유럽 최대 수족관!",lat:38.7635435,lng:-9.0937415,visited:false},
+{cat:"sight",city:"sintra",name:"페나 궁전",nameEn:"Palácio da Pena",rating:4.4,price:"€14~20",menu:"동화 속 궁전",tip:"예약 필수. 편한 신발!",lat:38.7875851,lng:-9.3906089,visited:false}
+];
+
+const SEED_ITIN=[
+{day:1,title:"포르투 Day 1",sub:"구시가지",city:"porto",stops:[
+{order:0,cat:"sight",name:"상벤투 기차역",nameEn:"Estação São Bento",lat:41.145492,lng:-8.609544,tm:"10:00",dur:"30분",note:"아줄레주 타일!"},
+{order:1,cat:"sight",name:"포르투 대성당",nameEn:"Sé do Porto",lat:41.142853,lng:-8.611116,tm:"10:45",dur:"45분",note:"360도 전망."},
+{order:2,cat:"sight",name:"리베이라 지구",nameEn:"Cais da Ribeira",lat:41.14041,lng:-8.612566,tm:"11:45",dur:"45분",note:"UNESCO 유산."},
+{order:3,cat:"food",name:"🍽️ VOLTARIA",nameEn:"Voltaria",lat:41.1444161,lng:-8.6122994,tm:"12:45",dur:"75분",note:"프란세지냐 추천."},
+{order:4,cat:"sight",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",lat:41.1456705,lng:-8.6145977,tm:"14:30",dur:"60분",note:"240계단!"},
+{order:5,cat:"sight",name:"리브라리아 렐루",nameEn:"Livraria Lello",lat:41.146905,lng:-8.614774,tm:"15:45",dur:"30분",note:"사전 예약!"},
+{order:6,cat:"food",name:"🍽️ The Door",nameEn:"The Door Porto",lat:41.1441961,lng:-8.616688,tm:"18:30",dur:"90분",note:"테이스팅 코스."}]},
+{day:2,title:"포르투 Day 2",sub:"와인 & 가이아",city:"porto",stops:[
+{order:0,cat:"sight",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",lat:41.139959,lng:-8.609449,tm:"10:00",dur:"30분",note:"상층 파노라마!"},
+{order:1,cat:"sight",name:"Fonseca 셀러",nameEn:"Fonseca",lat:41.1354472,lng:-8.614342,tm:"10:45",dur:"75분",note:"토니 포트 일품."},
+{order:2,cat:"sight",name:"Niepoort 셀러",nameEn:"Niepoort",lat:41.1342013,lng:-8.618324,tm:"12:15",dur:"75분",note:"사전 예약!"},
+{order:3,cat:"food",name:"🍽️ Taberna Mercadores",nameEn:"Taberna Dos Mercadores",lat:41.1413291,lng:-8.6129202,tm:"13:45",dur:"75분",note:"문어밥!"},
+{order:4,cat:"sight",name:"크리스탈 궁전 정원",nameEn:"Jardins Palácio de Cristal",lat:41.1482682,lng:-8.6255165,tm:"15:30",dur:"90분",note:"일몰 포인트!"},
+{order:5,cat:"food",name:"🍽️ Bota & Bira",nameEn:"Bota & Bira",lat:41.1424129,lng:-8.6158059,tm:"19:00",dur:"90분",note:"립아이!"}]},
+{day:3,title:"포르투 Day 3",sub:"볼사 궁전",city:"porto",stops:[
+{order:0,cat:"sight",name:"볼사 궁전",nameEn:"Palácio da Bolsa",lat:41.1413772,lng:-8.615672,tm:"10:00",dur:"60분",note:"아랍의 방!"},
+{order:1,cat:"sight",name:"비르투데스 공원",nameEn:"Parque das Virtudes",lat:41.1447,lng:-8.618988,tm:"11:30",dur:"45분",note:"숨은 명소."},
+{order:2,cat:"food",name:"🍽️ Brasão Aliados",nameEn:"Brasão Aliados",lat:41.1491541,lng:-8.6117884,tm:"12:45",dur:"75분",note:"프란세지냐!"},
+{order:3,cat:"food",name:"🍽️ A Despensa",nameEn:"A Despensa",lat:41.147249,lng:-8.613547,tm:"19:30",dur:"90분",note:"최고 파스타!"}]},
+{day:4,title:"리스본 Day 1",sub:"알파마 & 성",city:"lisbon",stops:[
+{order:0,cat:"sight",name:"리스본 대성당",nameEn:"Sé de Lisboa",lat:38.709834,lng:-9.132954,tm:"11:30",dur:"45분",note:"1147년 성당."},
+{order:1,cat:"sight",name:"상 조르제 성",nameEn:"Castelo de São Jorge",lat:38.713909,lng:-9.133476,tm:"12:30",dur:"90분",note:"파노라마!"},
+{order:2,cat:"food",name:"🍽️ Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",lat:38.7136987,lng:-9.1244447,tm:"14:15",dur:"75분",note:"문어+고구마!"},
+{order:3,cat:"food",name:"🍽️ A Nossa Casa",nameEn:"A Nossa Casa",lat:38.7118452,lng:-9.1449444,tm:"19:00",dur:"90분",note:"타르타르!"}]},
+{day:5,title:"리스본 Day 2",sub:"벨렝",city:"lisbon",stops:[
+{order:0,cat:"food",name:"🍽️ 파스테이스 드 벨렝",nameEn:"Pastéis de Belém",lat:38.6975105,lng:-9.203228,tm:"09:00",dur:"45분",note:"에그타르트!"},
+{order:1,cat:"sight",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",lat:38.6978909,lng:-9.206704,tm:"10:00",dur:"90분",note:"예약 강추!"},
+{order:2,cat:"sight",name:"벨렝 탑",nameEn:"Torre de Belém",lat:38.691584,lng:-9.215977,tm:"12:00",dur:"30분",note:"공사 중."},
+{order:3,cat:"food",name:"🍽️ Time Out Market",nameEn:"Time Out Market",lat:38.7070608,lng:-9.1456691,tm:"13:30",dur:"75분",note:"다양한 음식."},
+{order:4,cat:"sight",name:"코메르시우 광장",nameEn:"Praça do Comércio",lat:38.7072828,lng:-9.136361,tm:"15:30",dur:"45분",note:"석양!"}]},
+{day:6,title:"리스본 Day 3",sub:"신트라",city:"sintra",stops:[
+{order:0,cat:"sight",name:"페나 궁전",nameEn:"Palácio da Pena",lat:38.7875851,lng:-9.3906089,tm:"10:00",dur:"150분",note:"예약 필수!"}]},
+{day:7,title:"리스본 Day 4",sub:"바이샤",city:"lisbon",stops:[
+{order:0,cat:"sight",name:"카르무 박물관",nameEn:"Museu do Carmo",lat:38.712038,lng:-9.140613,tm:"10:30",dur:"60분",note:"지붕 없는 성당!"},
+{order:1,cat:"food",name:"🍽️ Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",lat:38.710951,lng:-9.130052,tm:"12:30",dur:"75분",note:"가성비."},
+{order:2,cat:"food",name:"🍽️ Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",lat:38.720257,lng:-9.135743,tm:"19:00",dur:"90분",note:"해산물!"}]},
+{day:8,title:"리스본 Day 5",sub:"피날레",city:"lisbon",stops:[
+{order:0,cat:"sight",name:"오세아나리움",nameEn:"Oceanário",lat:38.7635435,lng:-9.0937415,tm:"10:00",dur:"180분",note:"유럽 최대!"},
+{order:1,cat:"food",name:"🍽️ Augusto Lisboa",nameEn:"Augusto Lisboa",lat:38.714425,lng:-9.130207,tm:"14:30",dur:"75분",note:"브런치!"},
+{order:2,cat:"food",name:"🍽️ Copo de Mar",nameEn:"Copo de Mar",lat:38.739801,lng:-9.149103,tm:"19:30",dur:"90분",note:"피날레!"}]}
+];
+
+async function initData(){
+  // Check places
+  let pSnap=await getDocs(collection(db,window.PCOL));
+  if(pSnap.size===0){for(const s of SEED_PLACES){await addDoc(collection(db,window.PCOL),{...s,createdAt:Date.now()});}}
+  // Check itinerary
+  let iSnap=await getDocs(collection(db,window.ICOL));
+  if(iSnap.size===0){for(const d of SEED_ITIN){await setDoc(doc(db,window.ICOL,'day'+d.day),d);}}
+  window.loadAll();
+}
+
+window.loadAll=async function(){
+  // Load places
+  let ps=await getDocs(collection(db,window.PCOL));
+  window._places=[];ps.forEach(d=>{window._places.push({id:d.id,...d.data()});});
+  window._places.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  // Load itinerary
+  let is=await getDocs(collection(db,window.ICOL));
+  window._days=[];is.forEach(d=>{window._days.push({id:d.id,...d.data()});});
+  window._days.sort((a,b)=>a.day-b.day);
+  window._days.forEach(d=>{if(d.stops)d.stops.sort((a,b)=>a.order-b.order);});
+  window.renderDays();
+  window.renderItinList();
+  window.renderPlaces();
+  window.updateItinMap();
+};
+
+window.saveDay=async function(dayId,data){
+  await setDoc(doc(db,window.ICOL,dayId),data);
+};
+
+initData();
+</script>
 
 <script>
-var D=[
-{day:1,title:"포르투 Day 1",sub:"구시가지 핵심 탐방",city:"포르투",desc:"포르투의 핵심 랜드마크를 천천히 걸으며 첫인상을 느껴보세요.",tmode:"WALKING",
-stops:[
-{n:1,t:"sight",kr:"상벤투 기차역",en:"Estação São Bento",lat:41.145492,lng:-8.609544,tm:"10:00",dur:"30분",rt:"4.7",note:"아줄레주 타일 벽화가 압권! 2만 개의 푸른 타일이 포르투갈 역사를 담고 있어요."},
-{n:2,t:"sight",kr:"포르투 대성당",en:"Sé do Porto",lat:41.142853,lng:-8.611116,tm:"10:45",dur:"45분",rt:"4.6",pr:"€4",note:"12세기 로마네스크 성당. 타워 위 360도 전망 훌륭. 고딕 회랑 아줄레주 필수!"},
-{n:3,t:"sight",kr:"리베이라 지구",en:"Cais da Ribeira",lat:41.14041,lng:-8.612566,tm:"11:45",dur:"45분",rt:"4.8",note:"UNESCO 세계문화유산. 도우로 강변 산책과 사진 명소."},
-{n:4,t:"food",kr:"🍽️ VOLTARIA (점심)",en:"Petisqueira Voltaria",lat:41.1444161,lng:-8.6122994,tm:"12:45",dur:"75분",rt:"4.8",pr:"€",cl:"수,일",note:"가정식 포르투갈 요리. 프란세지냐와 대구 요리 추천."},
-{n:5,t:"sight",kr:"클레리구스 탑",en:"Torre dos Clérigos",lat:41.1456705,lng:-8.6145977,tm:"14:30",dur:"60분",rt:"4.6",pr:"€10",note:"240계단 올라가면 포르투 최고 전망!"},
-{n:6,t:"sight",kr:"리브라리아 렐루",en:"Livraria Lello",lat:41.146905,lng:-8.614774,tm:"15:45",dur:"30분",rt:"4.0",pr:"€8",note:"세계에서 가장 아름다운 서점. 온라인 사전 예약 필수!"},
-{n:7,t:"food",kr:"🍽️ The Door (저녁)",en:"The Door Porto",lat:41.1441961,lng:-8.616688,tm:"18:30",dur:"90분",rt:"4.8",pr:"€€",note:"테이스팅 코스 추천. 온라인 예약 필수 (18시 오픈)."}],
-tr:[
-{f:1,to:2,m:"walk",ic:"🚶",tx:"도보 10분",dt:"내리막 골목길. 구시가지 분위기."},
-{f:2,to:3,m:"walk",ic:"🚶",tx:"도보 8분",dt:"대성당 테라스 → 리베이라. 급경사 계단 주의!"},
-{f:3,to:4,m:"walk",ic:"🚶",tx:"도보 5분",dt:"강변에서 골목으로 올라가세요."},
-{f:4,to:5,m:"walk",ic:"🚶",tx:"도보 7분",dt:"식후 소화 겸 오르막. R. dos Clérigos."},
-{f:5,to:6,m:"walk",ic:"🚶",tx:"도보 2분",dt:"클레리구스 탑 바로 옆!"},
-{f:6,to:7,m:"walk",ic:"🚶",tx:"도보 5분",dt:"Rua das Taipas 방향."}]},
-{day:2,title:"포르투 Day 2",sub:"포트 와인 & 가이아",city:"포르투",desc:"도우로 강을 건너 가이아 와인 셀러를 탐방하고 정원에서 석양을.",tmode:"WALKING",
-stops:[
-{n:1,t:"sight",kr:"돔 루이스 1세 다리",en:"Ponte Dom Luís I",lat:41.139959,lng:-8.609449,tm:"10:00",dur:"30분",rt:"4.8",note:"상층으로 걸어서! 포르투 최고 파노라마 뷰."},
-{n:2,t:"sight",kr:"Fonseca 와인 셀러",en:"Fonseca Port Cellars",lat:41.1354472,lng:-8.614342,tm:"10:45",dur:"75분",pr:"€10~",note:"셀프 가이드 투어. 20년산 토니 포트 일품."},
-{n:3,t:"sight",kr:"Niepoort 와인 셀러",en:"Niepoort Wine Cellar",lat:41.1342013,lng:-8.618324,tm:"12:15",dur:"75분",rt:"4.8",pr:"€15~",cl:"일",note:"소규모 프리미엄 투어. 사전 예약 필수!"},
-{n:4,t:"food",kr:"🍽️ Taberna Dos Mercadores",en:"Taberna Dos Mercadores",lat:41.1413291,lng:-8.6129202,tm:"13:45",dur:"75분",rt:"4.5",pr:"€€",cl:"월",note:"문어밥 시그니처! 16석뿐이라 일찍."},
-{n:5,t:"sight",kr:"크리스탈 궁전 정원",en:"Jardins Palácio de Cristal",lat:41.1482682,lng:-8.6255165,tm:"15:30",dur:"90분",rt:"4.6",pr:"무료",note:"공작새 정원. 최고의 일몰 포인트!"},
-{n:6,t:"food",kr:"🍽️ Bota & Bira (저녁)",en:"Bota & Bira",lat:41.1424129,lng:-8.6158059,tm:"19:00",dur:"90분",rt:"4.8",pr:"€€",cl:"월,일",note:"스테이크 전문. 립아이+문어 강추!"}],
-tr:[
-{f:1,to:2,m:"walk",ic:"🚶",tx:"도보 15분",dt:"다리 상층 → 가이아. 내리막 후 셀러 표지판."},
-{f:2,to:3,m:"walk",ic:"🚶",tx:"도보 8분",dt:"가이아 강변 서쪽."},
-{f:3,to:4,m:"walk",ic:"🚶",tx:"도보 20분",dt:"다리 하층 포르투 복귀. 또는 케이블카(€7)."},
-{f:4,to:5,m:"bus",ic:"🚌",tx:"버스 500번 15분",dt:"Palácio de Cristal 하차. 또는 도보 25분."},
-{f:5,to:6,m:"walk",ic:"🚶",tx:"도보 15분",dt:"정원에서 구시가지 방향."}]},
-{day:3,title:"포르투 Day 3",sub:"볼사 궁전 & 마지막",city:"포르투",desc:"놓친 명소 후 포르투를 여유롭게 마무리.",tmode:"WALKING",
-stops:[
-{n:1,t:"sight",kr:"볼사 궁전",en:"Palácio da Bolsa",lat:41.1413772,lng:-8.615672,tm:"10:00",dur:"60분",rt:"4.5",pr:"€13",note:"아랍의 방 압권! 가이드 투어만. 일찍 가서 예약."},
-{n:2,t:"sight",kr:"비르투데스 공원",en:"Parque das Virtudes",lat:41.1447,lng:-8.618988,tm:"11:30",dur:"45분",rt:"4.6",pr:"무료",note:"현지인 숨은 명소. 도우로 강 전경."},
-{n:3,t:"food",kr:"🍽️ Brasão Aliados (점심)",en:"Brasão Aliados",lat:41.1491541,lng:-8.6117884,tm:"12:45",dur:"75분",rt:"4.6",pr:"€€",note:"프란세지냐 맛집! 3/4 사이즈 1인 충분."},
-{n:4,t:"food",kr:"🍽️ A Despensa (저녁)",en:"A Despensa",lat:41.147249,lng:-8.613547,tm:"19:30",dur:"90분",rt:"4.8",pr:"€€",cl:"월",note:"포르투 최고 파스타! 라자냐 미쉐린급."}],
-tr:[
-{f:1,to:2,m:"walk",ic:"🚶",tx:"도보 10분",dt:"리베이라에서 언덕 위로."},
-{f:2,to:3,m:"walk",ic:"🚶",tx:"도보 12분",dt:"Aliados 광장 방향. 내리막."},
-{f:3,to:4,m:"walk",ic:"🚶",tx:"도보 7분",dt:"오후 자유 후 저녁."}]},
-{day:4,title:"리스본 Day 1",sub:"알파마 & 성",city:"리스본",desc:"리스본 도착! 알파마 골목을 거닐어 보세요.",tmode:"WALKING",
-stops:[
-{n:1,t:"transport-marker",kr:"🚆 포르투→리스본",en:"AP Train Campanhã→S.Apolónia",lat:38.714,lng:-9.123,tm:"07:30",dur:"약 3시간",pr:"€25~35",note:"Campanhã역 AP고속열차. cp.pt 사전 예매 추천."},
-{n:2,t:"sight",kr:"리스본 대성당",en:"Sé de Lisboa",lat:38.709834,lng:-9.132954,tm:"11:30",dur:"45분",rt:"4.4",pr:"무료",note:"1147년 리스본 최고(最古) 성당."},
-{n:3,t:"sight",kr:"상 조르제 성",en:"Castelo de São Jorge",lat:38.713909,lng:-9.133476,tm:"12:30",dur:"90분",rt:"4.5",pr:"€15",note:"리스본 최고 파노라마! Lisboa Card 무료."},
-{n:4,t:"food",kr:"🍽️ Taberna Sal Grosso",en:"Taberna Sal Grosso",lat:38.7136987,lng:-9.1244447,tm:"14:15",dur:"75분",rt:"4.7",pr:"€",note:"알파마 숨은 맛집. 문어+고구마매시 강추!"},
-{n:5,t:"transport-marker",kr:"🚃 트램 28번 체험",en:"Tram 28 Martim Moniz",lat:38.7152423,lng:-9.136078,tm:"16:00",dur:"60분",pr:"€1.90",note:"Martim Moniz 출발 = 좌석 확보!"},
-{n:6,t:"food",kr:"🍽️ A Nossa Casa (저녁)",en:"A Nossa Casa",lat:38.7118452,lng:-9.1449444,tm:"19:00",dur:"90분",rt:"4.8",pr:"€€",note:"24석 소규모. 타르타르+문어 환상! 예약 필수."}],
-tr:[
-{f:1,to:2,m:"metro",ic:"🚇",tx:"메트로+도보 20분",dt:"S.Apolónia Blue→Terreiro do Paço, 도보 10분."},
-{f:2,to:3,m:"walk",ic:"🚶",tx:"도보 10분",dt:"가파른 오르막! 물 챙기세요."},
-{f:3,to:4,m:"walk",ic:"🚶",tx:"도보 15분",dt:"성에서 알파마 골목 따라."},
-{f:4,to:5,m:"walk",ic:"🚶",tx:"도보 15분",dt:"Martim Moniz 광장으로."},
-{f:5,to:6,m:"tram",ic:"🚃",tx:"트램28+도보",dt:"Bairro Alto 하차 후 도보 5분."}]},
-{day:5,title:"리스본 Day 2",sub:"벨렝 지구",city:"리스본",desc:"대항해시대의 영광. 에그타르트 잊지 마세요!",tmode:"WALKING",
-stops:[
-{n:1,t:"food",kr:"🍽️ 파스테이스 드 벨렝",en:"Pastéis de Belém",lat:38.6975105,lng:-9.203228,tm:"09:00",dur:"45분",rt:"4.6",pr:"€",note:"원조 에그타르트! 아침에 줄 짧아요."},
-{n:2,t:"sight",kr:"제로니무스 수도원",en:"Mosteiro dos Jerónimos",lat:38.6978909,lng:-9.206704,tm:"10:00",dur:"90분",rt:"4.5",pr:"€10",cl:"월",note:"마누엘 양식 걸작! 온라인 예약 강추."},
-{n:3,t:"sight",kr:"벨렝 탑 (외관)",en:"Torre de Belém",lat:38.691584,lng:-9.215977,tm:"12:00",dur:"30분",rt:"4.5",wr:"2026 중반 공사중",note:"⚠️ 보수 공사 중! 외관+강변 산책은 OK."},
-{n:4,t:"food",kr:"🍽️ Time Out Market",en:"Time Out Market Lisboa",lat:38.7070608,lng:-9.1456691,tm:"13:30",dur:"75분",rt:"4.4",pr:"€€~€€€",note:"다양한 포르투갈 음식 한곳에서!"},
-{n:5,t:"sight",kr:"코메르시우 광장",en:"Praça do Comércio",lat:38.7072828,lng:-9.136361,tm:"15:30",dur:"45분",rt:"4.7",pr:"무료",note:"타구스 강변 웅장한 광장. 석양!"}],
-tr:[
-{f:0,to:1,m:"tram",ic:"🚃",tx:"트램15E/버스728",dt:"시내→벨렝 약 30분."},
-{f:1,to:2,m:"walk",ic:"🚶",tx:"도보 3분",dt:"바로 옆!"},
-{f:2,to:3,m:"walk",ic:"🚶",tx:"도보 15분",dt:"강변 서쪽. 발견기념비 경유."},
-{f:3,to:4,m:"tram",ic:"🚃",tx:"트램15E 약 25분",dt:"벨렝→Cais do Sodré. 역 옆."},
-{f:4,to:5,m:"walk",ic:"🚶",tx:"도보 15분",dt:"강변 동쪽으로."}]},
-{day:6,title:"리스본 Day 3",sub:"신트라 당일치기",city:"신트라",desc:"동화 속 궁전! 리스본에서 기차 40분.",tmode:"DRIVING",
-stops:[
-{n:1,t:"transport-marker",kr:"🚆 리스본→신트라",en:"Rossio→Sintra 기차",lat:38.798,lng:-9.381,tm:"08:30",dur:"40분",pr:"€2.30",note:"Rossio역 출발. 15~30분 간격."},
-{n:2,t:"sight",kr:"페나 궁전",en:"Palácio Nacional da Pena",lat:38.7875851,lng:-9.3906089,tm:"10:00",dur:"150분",rt:"4.4",pr:"€14~20",note:"온라인 예약 필수. 편한 신발!"},
-{n:3,t:"transport-marker",kr:"🚆 신트라→리스본",en:"Sintra→Rossio 기차",lat:38.7978,lng:-9.3785,tm:"15:00",dur:"40분",pr:"€2.30",note:"여유롭게 복귀."}],
-tr:[
-{f:1,to:2,m:"bus",ic:"🚌",tx:"버스 434번 ~20분",dt:"신트라역 앞 탑승. 왕복 티켓."},
-{f:2,to:3,m:"bus",ic:"🚌",tx:"버스 434번 ~20분",dt:"궁전→신트라역."}]},
-{day:7,title:"리스본 Day 4",sub:"바이샤 & 시아두",city:"리스본",desc:"리스본 중심부 쇼핑과 문화를 여유롭게.",tmode:"WALKING",
-stops:[
-{n:1,t:"sight",kr:"카르무 고고학 박물관",en:"Museu Arqueológico do Carmo",lat:38.712038,lng:-9.140613,tm:"10:30",dur:"60분",rt:"4.5",pr:"€5",cl:"일",note:"1755년 대지진 고딕 수도원. 지붕 없는 성당!"},
-{n:2,t:"food",kr:"🍽️ Lisbon Tu e Eu",en:"Lisboa Tu & Eu",lat:38.710951,lng:-9.130052,tm:"12:30",dur:"75분",rt:"4.5",pr:"€",note:"가성비 로컬 맛집. 오징어+감자, 상그리아."},
-{n:3,t:"food",kr:"🍽️ Cervejaria Ramiro",en:"Cervejaria Ramiro",lat:38.720257,lng:-9.135743,tm:"19:00",dur:"90분",rt:"4.4",pr:"€€€",cl:"월",note:"리스본 최고 해산물! 타이거새우, 마늘게 필수."}],
-tr:[
-{f:1,to:2,m:"walk",ic:"🚶",tx:"도보 15분",dt:"시아두→Baixa 쇼핑거리 경유."},
-{f:2,to:3,m:"metro",ic:"🚇",tx:"메트로 Green 10분",dt:"Baixa-Chiado→Intendente, 도보 5분."}]},
-{day:8,title:"리스본 Day 5",sub:"수족관 & 마지막 미식",city:"리스본",desc:"유럽 최대 수족관 후 최고의 식사로 피날레!",tmode:"TRANSIT",
-stops:[
-{n:1,t:"sight",kr:"리스본 오세아나리움",en:"Oceanário de Lisboa",lat:38.7635435,lng:-9.0937415,tm:"10:00",dur:"180분",rt:"4.7",pr:"€25~29",note:"유럽 최대 수족관! 해달+해파리관 3~4시간."},
-{n:2,t:"food",kr:"🍽️ Augusto Lisboa",en:"Augusto Lisboa",lat:38.714425,lng:-9.130207,tm:"14:30",dur:"75분",rt:"4.8",pr:"€€",note:"트렌디 브런치. 스크램블에그, 팬케이크 강추."},
-{n:3,t:"food",kr:"🍽️ Copo de Mar (피날레)",en:"Copo de Mar",lat:38.739801,lng:-9.149103,tm:"19:30",dur:"90분",rt:"4.8",pr:"€€",cl:"일",note:"여행 피날레! 대구·문어 환상. 예약 필수!"}],
-tr:[
-{f:0,to:1,m:"metro",ic:"🚇",tx:"메트로 Red Line",dt:"Oriente역 하차, 도보 10분."},
-{f:1,to:2,m:"metro",ic:"🚇",tx:"메트로 약 25분",dt:"Oriente→Alameda→Green→Baixa-Chiado."},
-{f:2,to:3,m:"metro",ic:"🚇",tx:"메트로+도보 20분",dt:"Baixa-Chiado→São Sebastião. 또는 택시 €5."}]}
-];
+// ===== STATE =====
+var cur=0,sel=null,gmap,gmks=[],iw,dRenderer,dService,pmap,pmks=[],piw,pFilter='all';
+var darkStyle=[{elementType:"geometry",stylers:[{color:"#1d2c3a"}]},{elementType:"labels.text.stroke",stylers:[{color:"#1a2636"}]},{elementType:"labels.text.fill",stylers:[{color:"#746855"}]},{featureType:"administrative.locality",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},{featureType:"poi",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},{featureType:"poi.park",elementType:"geometry",stylers:[{color:"#1a3325"}]},{featureType:"road",elementType:"geometry",stylers:[{color:"#2a3f54"}]},{featureType:"road",elementType:"labels.text.fill",stylers:[{color:"#9ca5b3"}]},{featureType:"road.highway",elementType:"geometry",stylers:[{color:"#3a5169"}]},{featureType:"transit",elementType:"geometry",stylers:[{color:"#2f4357"}]},{featureType:"transit.station",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},{featureType:"water",elementType:"geometry",stylers:[{color:"#0e1d2b"}]},{featureType:"water",elementType:"labels.text.fill",stylers:[{color:"#515c6d"}]}];
 
-var cur=0,sel=null,gmap,gmks=[],iw,dRenderer,dService;
-var darkStyle=[
-{elementType:"geometry",stylers:[{color:"#1d2c3a"}]},
-{elementType:"labels.text.stroke",stylers:[{color:"#1a2636"}]},
-{elementType:"labels.text.fill",stylers:[{color:"#746855"}]},
-{featureType:"administrative.locality",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},
-{featureType:"poi",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},
-{featureType:"poi.park",elementType:"geometry",stylers:[{color:"#1a3325"}]},
-{featureType:"road",elementType:"geometry",stylers:[{color:"#2a3f54"}]},
-{featureType:"road",elementType:"labels.text.fill",stylers:[{color:"#9ca5b3"}]},
-{featureType:"road.highway",elementType:"geometry",stylers:[{color:"#3a5169"}]},
-{featureType:"transit",elementType:"geometry",stylers:[{color:"#2f4357"}]},
-{featureType:"transit.station",elementType:"labels.text.fill",stylers:[{color:"#d59563"}]},
-{featureType:"water",elementType:"geometry",stylers:[{color:"#0e1d2b"}]},
-{featureType:"water",elementType:"labels.text.fill",stylers:[{color:"#515c6d"}]}
-];
+// ===== MAIN TAB =====
+window.mainTab=function(t){
+  document.getElementById('itinPanel').classList.toggle('v',t==='itin');
+  document.getElementById('placesPanel').classList.toggle('v',t==='places');
+  document.getElementById('mt1').classList.toggle('on',t==='itin');
+  document.getElementById('mt2').classList.toggle('on',t==='places');
+  if(t==='itin'&&gmap)setTimeout(()=>google.maps.event.trigger(gmap,'resize'),100);
+  if(t==='places'&&pmap)setTimeout(()=>google.maps.event.trigger(pmap,'resize'),100);
+};
 
-function rd(){document.getElementById('dy').innerHTML=D.map(function(d,i){return '<button class="db'+(i===cur?' on':'')+'" onclick="pd('+i+')">D'+d.day+' <span class="c">'+d.city+'</span></button>';}).join('');}
+// ===== ITINERARY =====
+window.renderDays=function(){
+  var days=window._days||[];
+  document.getElementById('dy').innerHTML=days.map((d,i)=>'<button class="db'+(i===cur?' on':'')+'" onclick="pickDay('+i+')">D'+d.day+' <span class="c">'+(d.city==='porto'?'포르투':d.city==='lisbon'?'리스본':'신트라')+'</span></button>').join('');
+};
 
-function rl(){
-  var d=D[cur],h='<div class="dh"><h2>'+d.title+' — '+d.sub+'</h2><p>'+d.desc+'</p></div>';
-  d.stops.forEach(function(x,i){
-    if(i>0){var tr=null;for(var j=0;j<d.tr.length;j++){if(d.tr[j].to===x.n){tr=d.tr[j];break;}}
-      if(tr){h+='<div class="tl"><div class="tl-b"></div></div><div class="tp"><div class="ti '+tr.m+'">'+tr.ic+'</div><div class="tt"><b>'+tr.tx+'</b><br>'+tr.dt+'</div></div><div class="tl"><div class="tl-b"></div></div>';}}
+window.pickDay=function(i){cur=i;sel=null;renderDays();renderItinList();updateItinMap();};
+
+window.renderItinList=function(){
+  var days=window._days||[];if(!days.length){document.getElementById('ls').innerHTML='<div class="empty">일정 로딩 중...</div>';return;}
+  var d=days[cur];if(!d)return;
+  var stops=d.stops||[];
+  var h='<div class="dh"><h2>'+d.title+' — '+d.sub+'</h2></div>';
+  stops.forEach(function(x,i){
+    // Transport info between stops
+    if(i>0&&x._transit){
+      h+='<div class="tl"><div class="tl-b"></div></div>';
+      var mode=x._transit.mode||'walk';
+      var icon=mode==='walk'?'🚶':mode==='transit'?'🚌':'🚗';
+      h+='<div class="tp"><div class="ti '+mode+'">'+icon+'</div><div class="tt"><b>'+x._transit.text+'</b>'+(x._transit.detail?'<br>'+x._transit.detail:'')+'</div></div>';
+      h+='<div class="tl"><div class="tl-b"></div></div>';
+    }
     var ac=sel===i?' on':'';
-    h+='<div class="st'+ac+'" onclick="ps('+i+')" id="s'+i+'"><div class="sn '+x.t+'">'+x.n+'</div><div class="si"><div class="nm">'+x.kr+'<br><span class="ne">'+x.en+'</span></div><div class="sm"><span class="tm">'+x.tm+'</span><span>'+x.dur+'</span></div><div class="tg">';
-    if(x.rt)h+='<span class="rt">★ '+x.rt+'</span>';if(x.pr)h+='<span class="pr">'+x.pr+'</span>';if(x.cl)h+='<span class="cl">휴무 '+x.cl+'</span>';if(x.wr)h+='<span class="wr">⚠ '+x.wr+'</span>';
-    h+='</div><div class="nt">'+(x.note||'')+'</div></div></div>';
+    var catClass=x.cat||'sight';
+    h+='<div class="st'+ac+'" onclick="pickStop('+i+')" id="s'+i+'">';
+    h+='<div class="sn '+catClass+'">'+(i+1)+'</div>';
+    h+='<div class="si"><div class="nm">'+x.name+'<br><span class="ne">'+(x.nameEn||'')+'</span></div>';
+    h+='<div class="sm"><span class="tm">'+(x.tm||'')+'</span><span>'+(x.dur||'')+'</span></div>';
+    if(x.note)h+='<div class="nt">'+x.note+'</div>';
+    h+='<div class="st-actions">';
+    if(i>0)h+='<button class="sa up" onclick="event.stopPropagation();moveStop('+i+',-1)">↑ 위로</button>';
+    if(i<stops.length-1)h+='<button class="sa down" onclick="event.stopPropagation();moveStop('+i+',1)">↓ 아래</button>';
+    h+='<button class="sa del" onclick="event.stopPropagation();removeStop('+i+')">🗑️ 삭제</button>';
+    h+='</div></div></div>';
   });
+  h+='<button class="add-stop" onclick="openDayModal()">+ 저장소에서 추가</button>';
   document.getElementById('ls').innerHTML=h;
-}
+};
 
-function pd(i){cur=i;sel=null;rd();rl();um();}
-function ps(i){
-  sel=sel===i?null:i;rl();
-  if(sel!==null){var x=D[cur].stops[sel];gmap.panTo({lat:x.lat,lng:x.lng});gmap.setZoom(16);showIW(sel);
+window.pickStop=function(i){
+  sel=sel===i?null:i;renderItinList();
+  if(sel!==null){var x=(window._days[cur].stops||[])[sel];if(x&&x.lat){gmap.panTo({lat:x.lat,lng:x.lng});gmap.setZoom(16);if(gmks[sel])showIW(sel);}
     var el=document.getElementById('s'+sel);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
-}
-function sv(v){
-  var mw=document.getElementById('mw'),lw=document.getElementById('lw'),vm=document.getElementById('vm'),vl=document.getElementById('vl');
-  if(v==='map'){mw.classList.add('v');lw.classList.remove('v');vm.classList.add('on');vl.classList.remove('on');}
-  else{lw.classList.add('v');mw.classList.remove('v');vl.classList.add('on');vm.classList.remove('on');}
-  if(v==='map')setTimeout(function(){google.maps.event.trigger(gmap,'resize');},100);
-}
+};
 
-function mc(t){return t==='food'?'#22c55e':t==='transport-marker'?'#a855f7':'#3b82f6';}
+window.moveStop=async function(idx,dir){
+  var d=window._days[cur];var stops=d.stops||[];
+  var ni=idx+dir;if(ni<0||ni>=stops.length)return;
+  var tmp=stops[idx];stops[idx]=stops[ni];stops[ni]=tmp;
+  stops.forEach((s,i)=>s.order=i);
+  await window.saveDay(d.id,d);
+  renderItinList();updateItinMap();calcTransits();
+};
 
-function showIW(idx){
-  var x=D[cur].stops[idx];
-  var c='<div class="iw"><h3>'+x.kr+'</h3><div class="sub">'+x.en+'</div><p><b>'+x.tm+'</b> · '+x.dur+'</p>';
-  if(x.rt)c+='<p>★ '+x.rt+'</p>';if(x.note)c+='<p>'+x.note+'</p>';c+='</div>';
-  iw.setContent(c);iw.open(gmap,gmks[idx]);
-}
+window.removeStop=async function(idx){
+  if(!confirm('일정에서 삭제하시겠어요?'))return;
+  var d=window._days[cur];d.stops.splice(idx,1);
+  d.stops.forEach((s,i)=>s.order=i);
+  await window.saveDay(d.id,d);sel=null;
+  renderItinList();updateItinMap();calcTransits();
+};
 
-function initMap(){
-  gmap=new google.maps.Map(document.getElementById('map'),{
-    center:{lat:41.145,lng:-8.612},zoom:14,styles:darkStyle,
-    disableDefaultUI:true,zoomControl:true,fullscreenControl:true,mapTypeControl:false
+window.addStopToDay=async function(dayIdx,place){
+  var d=window._days[dayIdx];if(!d.stops)d.stops=[];
+  d.stops.push({order:d.stops.length,cat:place.cat,name:place.name,nameEn:place.nameEn||'',lat:place.lat||0,lng:place.lng||0,tm:'',dur:'',note:place.tip||place.menu||''});
+  await window.saveDay(d.id,d);
+  closeDayModal();
+  cur=dayIdx;sel=null;
+  mainTab('itin');renderDays();renderItinList();updateItinMap();
+  setTimeout(calcTransits,500);
+};
+
+// ===== DIRECTIONS AUTO CALC =====
+window.calcTransits=function(){
+  var d=window._days[cur];var stops=d.stops||[];
+  if(stops.length<2)return;
+  for(var i=1;i<stops.length;i++){
+    (function(idx){
+      var a=stops[idx-1],b=stops[idx];
+      if(!a.lat||!b.lat)return;
+      dService.route({origin:{lat:a.lat,lng:a.lng},destination:{lat:b.lat,lng:b.lng},travelMode:google.maps.TravelMode.WALKING},function(r,s){
+        if(s==='OK'){
+          var leg=r.routes[0].legs[0];
+          var mins=Math.round(leg.duration.value/60);
+          var dist=leg.distance.text;
+          stops[idx]._transit={mode:'walk',text:'도보 '+mins+'분',detail:dist};
+        }else{
+          // Try transit
+          dService.route({origin:{lat:a.lat,lng:a.lng},destination:{lat:b.lat,lng:b.lng},travelMode:google.maps.TravelMode.TRANSIT},function(r2,s2){
+            if(s2==='OK'){
+              var leg=r2.routes[0].legs[0];
+              var mins=Math.round(leg.duration.value/60);
+              stops[idx]._transit={mode:'transit',text:'대중교통 '+mins+'분',detail:leg.distance.text};
+            }else{
+              stops[idx]._transit={mode:'walk',text:'경로 계산 불가',detail:''};
+            }
+            renderItinList();
+          });return;
+        }
+        renderItinList();
+      });
+    })(i);
+  }
+};
+
+function showIW(idx){var x=(window._days[cur].stops||[])[idx];if(!x)return;iw.setContent('<div class="iw"><h3>'+x.name+'</h3><div class="sub">'+(x.nameEn||'')+'</div><p>'+(x.tm?'<b>'+x.tm+'</b> · ':'')+(x.dur||'')+'</p>'+(x.note?'<p>'+x.note+'</p>':'')+'</div>');iw.open(gmap,gmks[idx]);}
+
+window.updateItinMap=function(){
+  if(!gmap)return;
+  gmks.forEach(m=>m.setMap(null));gmks=[];dRenderer.setDirections({routes:[]});
+  var days=window._days||[];var d=days[cur];if(!d)return;
+  var stops=d.stops||[];var bounds=new google.maps.LatLngBounds();
+  stops.forEach(function(x,i){
+    if(!x.lat)return;var pos={lat:x.lat,lng:x.lng};bounds.extend(pos);
+    var cc=x.cat==='food'?'#22c55e':x.cat==='cafe'?'#ec4899':x.cat==='lodge'?'#f59e0b':'#3b82f6';
+    var mk=new google.maps.Marker({position:pos,map:gmap,label:{text:String(i+1),color:'#fff',fontSize:'12px',fontWeight:'700'},icon:{path:google.maps.SymbolPath.CIRCLE,fillColor:cc,fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:16,labelOrigin:new google.maps.Point(0,0)},zIndex:100+i});
+    mk.addListener('click',function(){sel=i;renderItinList();showIW(i);});gmks.push(mk);
   });
+  if(stops.length>0)gmap.fitBounds(bounds,60);
+  // Draw route
+  if(stops.length>=2){
+    var pts=stops.filter(s=>s.lat);
+    if(pts.length>=2){
+      var o={lat:pts[0].lat,lng:pts[0].lng},de={lat:pts[pts.length-1].lat,lng:pts[pts.length-1].lng};
+      var wps=[];for(var i=1;i<pts.length-1;i++)wps.push({location:{lat:pts[i].lat,lng:pts[i].lng},stopover:true});
+      dService.route({origin:o,destination:de,waypoints:wps,travelMode:google.maps.TravelMode.WALKING},function(r,s){if(s==='OK')dRenderer.setDirections(r);});
+    }
+  }
+  calcTransits();
+};
+
+window.itinView=function(v){
+  var mw=document.getElementById('mw'),lw=document.getElementById('lw');
+  document.getElementById('iv1').classList.toggle('on',v==='map');
+  document.getElementById('iv2').classList.toggle('on',v==='list');
+  mw.classList.toggle('v',v==='map');lw.classList.toggle('v',v==='list');
+  if(v==='map')setTimeout(()=>google.maps.event.trigger(gmap,'resize'),100);
+};
+
+// ===== PLACES =====
+function catIcon(c){return c==='food'?'🍽️':c==='cafe'?'☕':c==='lodge'?'🏨':'🏛️';}
+function catColor(c){return c==='food'?'#22c55e':c==='cafe'?'#ec4899':c==='lodge'?'#f59e0b':'#3b82f6';}
+function cityName(c){return c==='porto'?'포르투':c==='lisbon'?'리스본':'신트라';}
+
+window.renderPlaces=function(){
+  var list=window._places||[];var f=pFilter;
+  if(f==='food'||f==='cafe'||f==='sight'||f==='lodge')list=list.filter(p=>p.cat===f);
+  else if(f==='porto'||f==='lisbon')list=list.filter(p=>p.city===f);
+  else if(f==='visited')list=list.filter(p=>p.visited);
+  if(!list.length){document.getElementById('plist').innerHTML='<div class="empty">장소가 없어요<br>+ 버튼으로 추가!</div>';updatePmap([]);return;}
+  var h='';list.forEach(function(p){
+    h+='<div class="pcard'+(p.visited?' visited':'')+'"><div class="pcard-top"><div class="pcard-icon '+p.cat+'">'+catIcon(p.cat)+'</div><div class="pcard-info"><div class="pcard-name">'+p.name+'</div><div class="pcard-en">'+(p.nameEn||'')+'</div><div class="pcard-meta">';
+    if(p.rating)h+='<span class="rt">★ '+p.rating+'</span>';if(p.price)h+='<span class="pr">'+p.price+'</span>';
+    h+='<span style="background:rgba(255,255,255,.05);color:var(--dm)">'+cityName(p.city)+'</span>';
+    if(p.closed)h+='<span class="cl">휴무 '+p.closed+'</span>';
+    h+='</div></div></div><div class="pcard-detail">';
+    if(p.menu)h+='<div>🍴 '+p.menu+'</div>';if(p.hours)h+='<div>🕐 '+p.hours+'</div>';if(p.tip)h+='<div>💡 '+p.tip+'</div>';
+    h+='</div><div class="pcard-actions">';
+    h+='<button class="pact visit'+(p.visited?' done':'')+'" onclick="toggleVisit(\''+p.id+'\','+p.visited+')">'+(p.visited?'✅ 완료':'☐ 체크')+'</button>';
+    h+='<button class="pact additin" onclick="openDayPicker(\''+p.id+'\')">📅 일정추가</button>';
+    if(p.lat&&p.lng)h+='<button class="pact mapbtn" onclick="focusPmap('+p.lat+','+p.lng+')">📍</button>';
+    h+='<button class="pact" style="background:rgba(232,168,56,.1);color:var(--acc)" onclick="editPlace(\''+p.id+'\')">✏️</button>';
+    h+='<button class="pact del" onclick="deletePlace(\''+p.id+'\')">🗑️</button>';
+    h+='</div></div>';
+  });
+  document.getElementById('plist').innerHTML=h;updatePmap(list);
+};
+
+window.pf=function(f,el){pFilter=f;document.querySelectorAll('.pbar .pbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderPlaces();};
+
+window.placeView=function(m){
+  document.getElementById('pv1').classList.toggle('on',m==='list');
+  document.getElementById('pv2').classList.toggle('on',m==='map');
+  document.querySelector('.plist').style.display=m==='list'?'block':'none';
+  document.getElementById('pmap').style.display=m==='map'?'block':'none';
+  if(m==='map'&&pmap)google.maps.event.trigger(pmap,'resize');
+};
+
+function updatePmap(list){
+  if(!pmap)return;pmks.forEach(m=>m.setMap(null));pmks=[];if(!piw)piw=new google.maps.InfoWindow();
+  var bounds=new google.maps.LatLngBounds();
+  list.forEach(function(p){if(!p.lat||!p.lng)return;bounds.extend({lat:p.lat,lng:p.lng});
+    var mk=new google.maps.Marker({position:{lat:p.lat,lng:p.lng},map:pmap,icon:{path:google.maps.SymbolPath.CIRCLE,fillColor:catColor(p.cat),fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:12},title:p.name});
+    mk.addListener('click',function(){piw.setContent('<div class="iw"><h3>'+catIcon(p.cat)+' '+p.name+'</h3>'+(p.rating?'<p>★ '+p.rating+'</p>':'')+(p.menu?'<p>🍴 '+p.menu+'</p>':'')+'</div>');piw.open(pmap,mk);});pmks.push(mk);
+  });if(list.length>0)pmap.fitBounds(bounds,50);
+}
+
+window.focusPmap=function(lat,lng){mainTab('places');placeView('map');setTimeout(()=>{pmap.panTo({lat,lng});pmap.setZoom(16);},200);};
+
+// ===== PLACE CRUD =====
+window.openAdd=function(){
+  document.getElementById('modalTitle').textContent='새 장소 추가';
+  document.getElementById('modal').dataset.editId='';
+  ['fName','fNameEn','fRating','fHours','fClosed','fMenu','fTip','fLat','fLng'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('fCat').selectedIndex=0;document.getElementById('fCity').selectedIndex=0;document.getElementById('fPrice').selectedIndex=0;
+  document.getElementById('modal').classList.add('v');
+};
+window.closeModal=function(){document.getElementById('modal').classList.remove('v');};
+
+window.savePlace=async function(){
+  var d={cat:document.getElementById('fCat').value,city:document.getElementById('fCity').value,name:document.getElementById('fName').value.trim(),nameEn:document.getElementById('fNameEn').value.trim(),rating:parseFloat(document.getElementById('fRating').value)||0,price:document.getElementById('fPrice').value,hours:document.getElementById('fHours').value.trim(),closed:document.getElementById('fClosed').value.trim(),menu:document.getElementById('fMenu').value.trim(),tip:document.getElementById('fTip').value.trim(),lat:parseFloat(document.getElementById('fLat').value)||0,lng:parseFloat(document.getElementById('fLng').value)||0,visited:false,createdAt:Date.now()};
+  if(!d.name){alert('이름을 입력하세요');return;}
+  var eid=document.getElementById('modal').dataset.editId;
+  if(eid)await FB.updateDoc(FB.doc(FB.db,PCOL,eid),d);else await FB.addDoc(FB.collection(FB.db,PCOL),d);
+  closeModal();loadAll();
+};
+
+window.deletePlace=async function(id){if(!confirm('삭제?'))return;await FB.deleteDoc(FB.doc(FB.db,PCOL,id));loadAll();};
+window.toggleVisit=async function(id,cur){await FB.updateDoc(FB.doc(FB.db,PCOL,id),{visited:!cur});loadAll();};
+window.editPlace=function(id){
+  var p=(window._places||[]).find(x=>x.id===id);if(!p)return;
+  document.getElementById('modalTitle').textContent='장소 수정';document.getElementById('modal').dataset.editId=id;
+  document.getElementById('fCat').value=p.cat||'food';document.getElementById('fCity').value=p.city||'porto';
+  document.getElementById('fName').value=p.name||'';document.getElementById('fNameEn').value=p.nameEn||'';
+  document.getElementById('fRating').value=p.rating||'';document.getElementById('fPrice').value=p.price||'';
+  document.getElementById('fHours').value=p.hours||'';document.getElementById('fClosed').value=p.closed||'';
+  document.getElementById('fMenu').value=p.menu||'';document.getElementById('fTip').value=p.tip||'';
+  document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';
+  document.getElementById('modal').classList.add('v');
+};
+
+// ===== DAY PICKER =====
+window._pendingPlace=null;
+window.openDayPicker=function(placeId){
+  window._pendingPlace=(window._places||[]).find(x=>x.id===placeId);
+  var days=window._days||[];
+  document.getElementById('dayPick').innerHTML=days.map((d,i)=>'<button onclick="addStopToDay('+i+',window._pendingPlace)">D'+d.day+' '+d.sub+'</button>').join('');
+  document.getElementById('dayModal').classList.add('v');
+};
+window.openDayModal=function(){
+  // Show places to pick from
+  var places=window._places||[];
+  var h=places.map(p=>'<button onclick="addStopToDay('+cur+',{cat:\''+p.cat+'\',name:\''+p.name.replace(/'/g,"\\'")+'\',nameEn:\''+(p.nameEn||'').replace(/'/g,"\\'")+'\',lat:'+p.lat+',lng:'+p.lng+',tip:\''+(p.tip||'').replace(/'/g,"\\'")+'\',menu:\''+(p.menu||'').replace(/'/g,"\\'")+'\'})">'+(p.cat==='food'?'🍽️':p.cat==='cafe'?'☕':'🏛️')+' '+p.name+'</button>').join('');
+  document.getElementById('dayPick').innerHTML=h;
+  document.getElementById('dayModal').querySelector('h2').textContent='추가할 장소를 선택하세요';
+  document.getElementById('dayModal').classList.add('v');
+};
+window.closeDayModal=function(){document.getElementById('dayModal').classList.remove('v');};
+
+// ===== INIT MAP =====
+function initMap(){
+  gmap=new google.maps.Map(document.getElementById('map'),{center:{lat:41.145,lng:-8.612},zoom:14,styles:darkStyle,disableDefaultUI:true,zoomControl:true,fullscreenControl:true});
   iw=new google.maps.InfoWindow();
   dService=new google.maps.DirectionsService();
   dRenderer=new google.maps.DirectionsRenderer({suppressMarkers:true,polylineOptions:{strokeColor:'#e8a838',strokeWeight:4,strokeOpacity:0.8}});
   dRenderer.setMap(gmap);
-  um();
+  pmap=new google.maps.Map(document.getElementById('pmap'),{center:{lat:39.5,lng:-8.5},zoom:7,styles:darkStyle,disableDefaultUI:true,zoomControl:true,fullscreenControl:true});
 }
-
-function um(){
-  gmks.forEach(function(m){m.setMap(null);});gmks=[];
-  dRenderer.setDirections({routes:[]});
-  var d=D[cur],bounds=new google.maps.LatLngBounds();
-  d.stops.forEach(function(x,i){
-    var pos={lat:x.lat,lng:x.lng};bounds.extend(pos);
-    var mk=new google.maps.Marker({position:pos,map:gmap,
-      label:{text:String(x.n),color:'#fff',fontSize:'12px',fontWeight:'700'},
-      icon:{path:google.maps.SymbolPath.CIRCLE,fillColor:mc(x.t),fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:16,labelOrigin:new google.maps.Point(0,0)},
-      zIndex:100+i});
-    mk.addListener('click',function(){sel=i;rl();showIW(i);var el=document.getElementById('s'+i);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});});
-    gmks.push(mk);
-  });
-  gmap.fitBounds(bounds,60);
-  drawRoute(d);
-}
-
-function drawRoute(d){
-  if(d.stops.length<2)return;
-  var origin={lat:d.stops[0].lat,lng:d.stops[0].lng};
-  var dest={lat:d.stops[d.stops.length-1].lat,lng:d.stops[d.stops.length-1].lng};
-  var wps=[];
-  for(var i=1;i<d.stops.length-1;i++){wps.push({location:{lat:d.stops[i].lat,lng:d.stops[i].lng},stopover:true});}
-  var mode=d.tmode||'WALKING';
-  dService.route({origin:origin,destination:dest,waypoints:wps,travelMode:google.maps.TravelMode[mode],optimizeWaypoints:false},
-    function(res,status){
-      if(status==='OK'){dRenderer.setDirections(res);}
-      else{
-        // Fallback: try WALKING if other mode fails
-        if(mode!=='WALKING'){
-          dService.route({origin:origin,destination:dest,waypoints:wps,travelMode:google.maps.TravelMode.WALKING,optimizeWaypoints:false},
-            function(r2,s2){if(s2==='OK')dRenderer.setDirections(r2);});
-        }
-      }
-    });
-}
-
 window.initMap=initMap;
-rd();rl();
 </script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap&libraries=geometry"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap"></script>
 </body>
 </html>
