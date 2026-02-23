@@ -55,6 +55,23 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 .tt{font-size:11px;color:var(--dm);line-height:1.45}.tt b{color:var(--tx);font-weight:600}
 .lgd{position:absolute;bottom:16px;left:12px;right:12px;z-index:5;display:flex;gap:12px;justify-content:center;background:rgba(16,24,32,.9);backdrop-filter:blur(8px);border-radius:10px;padding:8px 16px;border:1px solid rgba(255,255,255,.06)}
 .lgd span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dm)}.lgd i{width:9px;height:9px;border-radius:50%;display:inline-block}
+/* Bottom detail card on map */
+.map-card{position:absolute;bottom:0;left:0;right:0;z-index:10;background:var(--card);border-radius:16px 16px 0 0;padding:16px 16px calc(10px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -4px 20px rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08)}
+.map-card.show{transform:translateY(0)}
+.mc-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:0 auto 12px}
+.mc-top{display:flex;align-items:flex-start;gap:10px}
+.mc-num{width:34px;height:34px;min-width:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.mc-info{flex:1;min-width:0}
+.mc-name{font-size:15px;font-weight:700;line-height:1.35}.mc-en{font-size:11px;color:var(--dm)}
+.mc-meta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.mc-meta span{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.mc-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--dm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mc-note{font-size:12px;color:var(--dm);line-height:1.6;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
+.mc-transit{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--dm);padding:6px 10px;background:rgba(255,255,255,.03);border-radius:8px}
+.mc-transit b{color:var(--tx);font-weight:600}
+.mc-nav{display:flex;gap:8px;margin-top:10px}
+.mc-nav button{flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.mc-nav .prev{background:rgba(255,255,255,.06);color:var(--dm)}.mc-nav .next{background:rgba(232,168,56,.15);color:var(--acc)}
 .gm-style-iw{max-width:280px!important}
 .iw{font-family:'Noto Sans KR',sans-serif;padding:2px}.iw h3{font-size:14px;margin-bottom:3px;color:#222}.iw .sub{font-size:11px;color:#888;margin-bottom:4px}.iw p{font-size:12px;color:#555;line-height:1.5;margin-bottom:2px}
 /* Places panel */
@@ -120,7 +137,19 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <div class="ict">
 <div class="lw v" id="lw"><div id="ls"></div></div>
 <div class="mw" id="mw"><div id="map"></div>
-<div class="lgd"><span><i style="background:var(--bl)"></i>관광</span><span><i style="background:var(--gn)"></i>맛집</span><span><i style="background:var(--or)"></i>숙소</span><span><i style="background:var(--pp)"></i>교통</span></div>
+<div class="lgd" id="mapLgd"><span><i style="background:var(--bl)"></i>관광</span><span><i style="background:var(--gn)"></i>맛집</span><span><i style="background:var(--or)"></i>숙소</span><span><i style="background:var(--pp)"></i>교통</span></div>
+<div class="map-card" id="mapCard">
+<div class="mc-handle"></div>
+<div class="mc-top">
+<div class="mc-num" id="mcNum">1</div>
+<div class="mc-info"><div class="mc-name" id="mcName"></div><div class="mc-en" id="mcEn"></div>
+<div class="mc-meta" id="mcMeta"></div></div>
+<button class="mc-close" onclick="closeMapCard()">✕</button>
+</div>
+<div class="mc-note" id="mcNote"></div>
+<div class="mc-transit" id="mcTransit" style="display:none"></div>
+<div class="mc-nav"><button class="prev" onclick="navCard(-1)">← 이전</button><button class="next" onclick="navCard(1)">다음 →</button></div>
+</div>
 </div></div></div>
 <!-- PLACES -->
 <div class="panel" id="placesPanel">
@@ -306,7 +335,7 @@ window.renderDays=function(){
   document.getElementById('dy').innerHTML=days.map((d,i)=>'<button class="db'+(i===cur?' on':'')+'" onclick="pickDay('+i+')">D'+d.day+' <span class="c">'+(d.city==='porto'?'포르투':d.city==='lisbon'?'리스본':'신트라')+'</span></button>').join('');
 };
 
-window.pickDay=function(i){cur=i;sel=null;renderDays();renderItinList();updateItinMap();};
+window.pickDay=function(i){cur=i;sel=null;closeMapCard();renderDays();renderItinList();updateItinMap();};
 
 window.renderItinList=function(){
   var days=window._days||[];if(!days.length){document.getElementById('ls').innerHTML='<div class="empty">일정 로딩 중...</div>';return;}
@@ -405,7 +434,46 @@ window.calcTransits=function(){
   }
 };
 
-function showIW(idx){var x=(window._days[cur].stops||[])[idx];if(!x)return;iw.setContent('<div class="iw"><h3>'+x.name+'</h3><div class="sub">'+(x.nameEn||'')+'</div><p>'+(x.tm?'<b>'+x.tm+'</b> · ':'')+(x.dur||'')+'</p>'+(x.note?'<p>'+x.note+'</p>':'')+'</div>');iw.open(gmap,gmks[idx]);}
+function showIW(idx){
+  var stops=(window._days[cur].stops||[]);var x=stops[idx];if(!x)return;
+  // Hide Google InfoWindow, show bottom card instead
+  iw.close();
+  var cc=x.cat==='food'?'#22c55e':x.cat==='cafe'?'#ec4899':x.cat==='lodge'?'#f59e0b':'#3b82f6';
+  var icon=x.cat==='food'?'🍽️':x.cat==='cafe'?'☕':x.cat==='lodge'?'🏨':'🏛️';
+  document.getElementById('mcNum').style.background=cc;
+  document.getElementById('mcNum').textContent=idx+1;
+  document.getElementById('mcName').textContent=x.name;
+  document.getElementById('mcEn').textContent=x.nameEn||'';
+  var meta='';
+  if(x.tm)meta+='<span class="rt">'+x.tm+'</span>';
+  if(x.dur)meta+='<span style="background:rgba(255,255,255,.05);color:var(--dm)">'+x.dur+'</span>';
+  document.getElementById('mcMeta').innerHTML=meta;
+  document.getElementById('mcNote').innerHTML=(x.note||'')+(x.tip?'<br>💡 '+x.tip:'');
+  // Transit info
+  var tEl=document.getElementById('mcTransit');
+  if(x._transit){tEl.style.display='flex';tEl.innerHTML=(x._transit.mode==='walk'?'🚶':'🚌')+' <b>'+x._transit.text+'</b> '+(x._transit.detail||'');}
+  else if(idx===0){tEl.style.display='none';}
+  else{tEl.style.display='flex';tEl.innerHTML='⏳ 경로 계산 중...';}
+  document.getElementById('mapCard').classList.add('show');
+  document.getElementById('mapLgd').style.display='none';
+}
+
+window.closeMapCard=function(){
+  document.getElementById('mapCard').classList.remove('show');
+  document.getElementById('mapLgd').style.display='flex';
+  sel=null;
+};
+
+window.navCard=function(dir){
+  var stops=(window._days[cur].stops||[]);
+  var ni=(sel||0)+dir;
+  if(ni<0)ni=stops.length-1;
+  if(ni>=stops.length)ni=0;
+  sel=ni;
+  var x=stops[sel];
+  if(x&&x.lat){gmap.panTo({lat:x.lat,lng:x.lng});gmap.setZoom(16);}
+  showIW(sel);
+};
 
 window.updateItinMap=function(){
   if(!gmap)return;
@@ -416,7 +484,7 @@ window.updateItinMap=function(){
     if(!x.lat)return;var pos={lat:x.lat,lng:x.lng};bounds.extend(pos);
     var cc=x.cat==='food'?'#22c55e':x.cat==='cafe'?'#ec4899':x.cat==='lodge'?'#f59e0b':'#3b82f6';
     var mk=new google.maps.Marker({position:pos,map:gmap,label:{text:String(i+1),color:'#fff',fontSize:'12px',fontWeight:'700'},icon:{path:google.maps.SymbolPath.CIRCLE,fillColor:cc,fillOpacity:1,strokeColor:'#fff',strokeWeight:2,scale:16,labelOrigin:new google.maps.Point(0,0)},zIndex:100+i});
-    mk.addListener('click',function(){sel=i;renderItinList();showIW(i);});gmks.push(mk);
+    mk.addListener('click',function(){sel=i;gmap.panTo(pos);gmap.setZoom(16);showIW(i);});gmks.push(mk);
   });
   if(stops.length>0)gmap.fitBounds(bounds,60);
   // Draw route
@@ -436,6 +504,7 @@ window.itinView=function(v){
   document.getElementById('iv1').classList.toggle('on',v==='map');
   document.getElementById('iv2').classList.toggle('on',v==='list');
   mw.classList.toggle('v',v==='map');lw.classList.toggle('v',v==='list');
+  closeMapCard();
   if(v==='map')setTimeout(function(){google.maps.event.trigger(gmap,'resize');updateItinMap();},150);
 };
 
@@ -542,6 +611,7 @@ window.closeDayModal=function(){document.getElementById('dayModal').classList.re
 // ===== INIT MAP =====
 function initMap(){
   gmap=new google.maps.Map(document.getElementById('map'),{center:{lat:41.145,lng:-8.612},zoom:14,styles:darkStyle,disableDefaultUI:true,zoomControl:true,fullscreenControl:true});
+  gmap.addListener('click',function(){closeMapCard();});
   iw=new google.maps.InfoWindow();
   dService=new google.maps.DirectionsService();
   dRenderer=new google.maps.DirectionsRenderer({suppressMarkers:true,polylineOptions:{strokeColor:'#e8a838',strokeWeight:4,strokeOpacity:0.8}});
@@ -553,4 +623,5 @@ window.initMap=initMap;
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&callback=initMap"></script>
 </body>
 </html>
+
 
