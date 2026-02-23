@@ -196,10 +196,10 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <!-- ADD/EDIT MODAL -->
 <div class="modal-bg" id="modal"><div class="modal">
 <h2 id="modalTitle">새 장소 추가</h2>
+<div class="mfield"><label>🔍 장소 검색 (영문)</label><input id="fNameEn" placeholder="예: Pastéis de Belém" autocomplete="off" style="font-size:15px;padding:12px"><div id="acHint" style="font-size:10px;color:var(--acc);margin-top:3px">📍 검색 후 선택하면 좌표·평점·카테고리 자동 입력</div></div>
 <div class="mrow"><div class="mfield"><label>카테고리</label><select id="fCat"><option value="food">🍽️ 맛집</option><option value="cafe">☕ 카페</option><option value="sight">🏛️ 관광지</option><option value="lodge">🏨 숙소</option></select></div>
 <div class="mfield"><label>도시</label><select id="fCity"><option value="porto">포르투</option><option value="lisbon">리스본</option><option value="sintra">신트라</option></select></div></div>
 <div class="mfield"><label>이름 (한글)</label><input id="fName" placeholder="예: 파스테이스 드 벨렝"></div>
-<div class="mfield"><label>이름 (영문) — 검색 가능 🔍</label><input id="fNameEn" placeholder="검색: Pastéis de Belém" autocomplete="off"><div id="acHint" style="font-size:10px;color:var(--acc);margin-top:3px;display:none">📍 선택하면 좌표·평점 자동 입력</div></div>
 <div class="mrow"><div class="mfield"><label>평점</label><input id="fRating" type="number" step="0.1" min="0" max="5" placeholder="4.8"></div>
 <div class="mfield"><label>가격대</label><select id="fPrice"><option value="">선택</option><option value="€">€</option><option value="€€">€€</option><option value="€€€">€€€</option><option value="무료">무료</option></select></div></div>
 <div class="mrow"><div class="mfield"><label>영업시간</label><input id="fHours" placeholder="10:00~22:00"></div>
@@ -628,6 +628,8 @@ window.openAdd=function(){
   document.getElementById('modal').dataset.editId='';
   ['fName','fNameEn','fRating','fHours','fClosed','fMenu','fTip','fLat','fLng'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('fCat').selectedIndex=0;document.getElementById('fCity').selectedIndex=0;document.getElementById('fPrice').selectedIndex=0;
+  document.getElementById('acHint').innerHTML='📍 검색 후 선택하면 좌표·평점·카테고리 자동 입력';
+  document.getElementById('acHint').style.color='var(--acc)';
   document.getElementById('modal').classList.add('v');
 };
 window.closeModal=function(){document.getElementById('modal').classList.remove('v');};
@@ -741,9 +743,7 @@ function initMap(){
     componentRestrictions:{country:'pt'}
   });
   // Show hint when typing
-  acInput.addEventListener('input',function(){
-    document.getElementById('acHint').style.display=this.value.length>1?'block':'none';
-  });
+  acInput.addEventListener('input',function(){});
   ac.addListener('place_changed',function(){
     var place=ac.getPlace();
     if(!place||!place.geometry)return;
@@ -765,8 +765,9 @@ function initMap(){
     else if(types.indexOf('cafe')>=0)document.getElementById('fCat').value='cafe';
     else if(types.indexOf('lodging')>=0||types.indexOf('hotel')>=0)document.getElementById('fCat').value='lodge';
     else if(types.indexOf('tourist')>=0||types.indexOf('museum')>=0||types.indexOf('church')>=0||types.indexOf('park')>=0)document.getElementById('fCat').value='sight';
-    // Hide hint
-    document.getElementById('acHint').style.display='none';
+    // Show confirmation
+    document.getElementById('acHint').innerHTML='✅ <b>'+place.name+'</b> 선택됨 — 좌표·평점 자동 입력 완료';
+    document.getElementById('acHint').style.color='var(--gn)';
   });
 }
 window.initMap=initMap;
