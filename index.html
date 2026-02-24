@@ -468,10 +468,13 @@ window.renderItinList=function(){
     // Check if this stop needs booking
     var bookMatch=null;
     var places=window._places||[];
+    var placeMatch=x.nameEn?places.find(function(p){return p.nameEn===x.nameEn;}):null;
     if(x.nameEn){bookMatch=places.find(function(p){return p.nameEn===x.nameEn&&p.book&&p.book.required;});}
     if(!bookMatch&&x.note&&x.note.indexOf('예약')>=0){bookMatch={book:{required:true,how:'',tip:x.note}};}
     var bookTag=bookMatch?'<span class="book-badge" onclick="event.stopPropagation();toggleItinBook('+i+')" style="margin-left:4px">🎫 예약</span>':'';
-    h+='<div class="si"><div class="nm">'+x.name+bookTag+'<br><span class="ne">'+(x.nameEn||'')+'</span></div>';
+    var costTag='';
+    if(placeMatch&&placeMatch.price){costTag='<span style="display:inline-block;margin-left:4px;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;vertical-align:middle">'+placeMatch.price+'</span>';}
+    h+='<div class="si"><div class="nm">'+x.name+bookTag+costTag+'<br><span class="ne">'+(x.nameEn||'')+'</span></div>';
     h+='<div class="sm"><span class="tm">'+(x.tm||'')+'</span><span>'+(x.dur||'')+'</span></div>';
     if(x.note)h+='<div class="nt">'+x.note+'</div>';
     // Booking tip for itinerary
@@ -489,6 +492,27 @@ window.renderItinList=function(){
     h+='</div></div></div>';
   });
   h+='<button class="add-stop" onclick="openDayModal()">+ 저장소에서 추가</button>';
+  // Daily cost summary
+  var totalCost=0;var costDetails=[];
+  stops.forEach(function(x){
+    var places=window._places||[];
+    var pm=x.nameEn?places.find(function(p){return p.nameEn===x.nameEn;}):null;
+    if(pm&&pm.price){
+      var p=pm.price;var est=0;
+      if(p==='무료'||p==='Free')est=0;
+      else if(p.match(/^€(\d+)/)){est=parseInt(p.match(/€(\d+)/)[1]);}
+      else if(p==='€')est=12;else if(p==='€€')est=25;else if(p==='€€€')est=45;
+      else if(p==='€€~€€€')est=35;
+      if(est>0){totalCost+=est;costDetails.push(x.name.replace(/🍽️\s*/,'')+' ~€'+est);}
+    }
+  });
+  if(totalCost>0){
+    h+='<div style="margin:10px 0;padding:10px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:11px;line-height:1.6">';
+    h+='<div style="font-weight:700;color:#22c55e;margin-bottom:4px">💰 예상 비용 (1인 기준)</div>';
+    h+='<div style="color:var(--dm)">'+costDetails.join(' · ')+'</div>';
+    h+='<div style="font-weight:700;color:var(--tx);margin-top:4px">합계 ~€'+totalCost+'/1인 · 3인 ~€'+(totalCost*3)+'</div>';
+    h+='</div>';
+  }
   document.getElementById('ls').innerHTML=h;
 };
 
