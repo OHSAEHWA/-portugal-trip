@@ -125,6 +125,12 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 .empty{text-align:center;padding:60px 20px;color:var(--dm);font-size:13px}
 .sync-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:var(--card);color:var(--acc);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s;flex-shrink:0}
 .sync-btn.spinning{animation:spin 1s linear infinite}
+.day-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;font-size:10px;font-weight:700;cursor:pointer;transition:.2s}
+.day-badge.set{background:var(--acc);color:#1a2636}.day-badge.unset{background:rgba(255,255,255,.08);color:var(--dm);border:1px dashed rgba(255,255,255,.15)}
+.day-pick-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.day-pick-row button{width:28px;height:28px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:var(--card2);color:var(--tx);font-size:11px;font-weight:700;cursor:pointer;transition:.2s}
+.day-pick-row button.active{background:var(--acc);color:#1a2636;border-color:var(--acc)}
+.day-pick-row button:hover{background:var(--acc);color:#1a2636}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .sync-status{font-size:10px;color:var(--dm);margin-top:4px;min-height:14px;transition:opacity .3s}
 .sync-status.ok{color:var(--gn)}.sync-status.err{color:var(--rd)}.sync-status.warn{color:var(--or)}
@@ -185,6 +191,18 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <button class="pbtn" onclick="pf('porto',this)">포르투</button>
 <button class="pbtn" onclick="pf('lisbon',this)">리스본</button>
 <button class="pbtn" onclick="pf('visited',this)">✅ 방문</button>
+</div>
+<div class="pbar" id="pbar2" style="margin-top:-4px">
+<button class="pbtn" onclick="pf('d1',this)">D1</button>
+<button class="pbtn" onclick="pf('d2',this)">D2</button>
+<button class="pbtn" onclick="pf('d3',this)">D3</button>
+<button class="pbtn" onclick="pf('d4',this)">D4</button>
+<button class="pbtn" onclick="pf('d5',this)">D5</button>
+<button class="pbtn" onclick="pf('d6',this)">D6</button>
+<button class="pbtn" onclick="pf('d7',this)">D7</button>
+<button class="pbtn" onclick="pf('d8',this)">D8</button>
+<button class="pbtn" onclick="pf('noday',this)">미정</button>
+<button class="pbtn" onclick="toggleSort()" id="sortBtn" style="margin-left:auto">📅 일차순</button>
 </div>
 <div class="pview"><button class="pvb on" onclick="placeView('list')" id="pv1">📋 목록</button><button class="pvb" onclick="placeView('map')" id="pv2">🗺 지도</button></div>
 <div class="pcontent">
@@ -253,29 +271,37 @@ const LS_LASTMOD='pt_lastmod';
 
 // ===== SEED DATA =====
 const SEED_PLACES=[
-{id:'s1',cat:"food",city:"porto",name:"VOLTARIA",nameEn:"Petisqueira Voltaria",rating:4.8,price:"€",closed:"수,일",menu:"프란세지냐, 대구요리",tip:"가정식 요리!",lat:41.1444161,lng:-8.6122994,visited:false},
-{id:'s2',cat:"food",city:"porto",name:"The Door",nameEn:"The Door Porto",rating:4.8,price:"€€",menu:"테이스팅 코스",tip:"예약 필수 (18시 오픈).",lat:41.1441961,lng:-8.616688,visited:false},
-{id:'s3',cat:"food",city:"porto",name:"Bota & Bira",nameEn:"Bota & Bira",rating:4.8,price:"€€",closed:"월,일",menu:"립아이, 문어",tip:"스테이크 전문.",lat:41.1424129,lng:-8.6158059,visited:false},
-{id:'s4',cat:"food",city:"porto",name:"Taberna Dos Mercadores",nameEn:"Taberna Dos Mercadores",rating:4.5,price:"€€",closed:"월",menu:"문어밥",tip:"16석뿐!",lat:41.1413291,lng:-8.6129202,visited:false},
-{id:'s5',cat:"food",city:"porto",name:"Brasão Aliados",nameEn:"Brasão Aliados",rating:4.6,price:"€€",menu:"프란세지냐",tip:"3/4 사이즈 1인 충분.",lat:41.1491541,lng:-8.6117884,visited:false},
-{id:'s6',cat:"food",city:"porto",name:"A Despensa",nameEn:"A Despensa",rating:4.8,price:"€€",closed:"월",menu:"파스타, 라자냐",tip:"미쉐린급.",lat:41.147249,lng:-8.613547,visited:false},
-{id:'s7',cat:"food",city:"lisbon",name:"Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",rating:4.7,price:"€",menu:"문어+고구마매시",tip:"알파마 숨은 맛집!",lat:38.7136987,lng:-9.1244447,visited:false},
-{id:'s8',cat:"food",city:"lisbon",name:"A Nossa Casa",nameEn:"A Nossa Casa",rating:4.8,price:"€€",menu:"타르타르, 문어",tip:"24석. 예약!",lat:38.7118452,lng:-9.1449444,visited:false},
-{id:'s9',cat:"food",city:"lisbon",name:"파스테이스 드 벨렝",nameEn:"Pastéis de Belém",rating:4.6,price:"€",menu:"에그타르트",tip:"아침에 줄 짧아요!",lat:38.6975105,lng:-9.203228,visited:false},
-{id:'s10',cat:"food",city:"lisbon",name:"Time Out Market",nameEn:"Time Out Market",rating:4.4,price:"€€~€€€",menu:"다양한 음식",tip:"한곳에서 다양하게.",lat:38.7070608,lng:-9.1456691,visited:false},
-{id:'s11',cat:"food",city:"lisbon",name:"Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",rating:4.5,price:"€",menu:"오징어+감자",tip:"가성비 로컬.",lat:38.710951,lng:-9.130052,visited:false},
-{id:'s12',cat:"food",city:"lisbon",name:"Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",rating:4.4,price:"€€€",closed:"월",menu:"타이거새우, 마늘게",tip:"번호표 대기.",lat:38.720257,lng:-9.135743,visited:false},
-{id:'s13',cat:"food",city:"lisbon",name:"Augusto Lisboa",nameEn:"Augusto Lisboa",rating:4.8,price:"€€",menu:"스크램블에그",tip:"브런치 맛집.",lat:38.714425,lng:-9.130207,visited:false},
-{id:'s14',cat:"food",city:"lisbon",name:"Copo de Mar",nameEn:"Copo de Mar",rating:4.8,price:"€€",closed:"일",menu:"대구, 문어",tip:"피날레 디너!",lat:38.739801,lng:-9.149103,visited:false},
-{id:'s15',cat:"sight",city:"porto",name:"상벤투 기차역",nameEn:"Estação São Bento",rating:4.7,price:"무료",menu:"아줄레주 타일",tip:"2만 개 푸른 타일.",lat:41.145492,lng:-8.609544,visited:false},
-{id:'s16',cat:"sight",city:"porto",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",rating:4.6,price:"€10",menu:"240계단 전망대",tip:"포르투 최고 전망!",lat:41.1456705,lng:-8.6145977,visited:false},
-{id:'s17',cat:"sight",city:"porto",name:"리브라리아 렐루",nameEn:"Livraria Lello",rating:4.0,price:"€8",menu:"아름다운 서점",tip:"사전 예약 필수!",lat:41.146905,lng:-8.614774,visited:false},
-{id:'s18',cat:"sight",city:"porto",name:"리베이라 지구",nameEn:"Cais da Ribeira",rating:4.8,price:"무료",menu:"UNESCO 유산",tip:"도우로 강변.",lat:41.14041,lng:-8.612566,visited:false},
-{id:'s19',cat:"sight",city:"porto",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",rating:4.8,price:"무료",menu:"파노라마 뷰",tip:"상층으로!",lat:41.139959,lng:-8.609449,visited:false},
-{id:'s20',cat:"sight",city:"lisbon",name:"상 조르제 성",nameEn:"Castelo de São Jorge",rating:4.5,price:"€15",menu:"파노라마 뷰",tip:"Lisboa Card 무료.",lat:38.713909,lng:-9.133476,visited:false},
-{id:'s21',cat:"sight",city:"lisbon",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",rating:4.5,price:"€10",closed:"월",menu:"마누엘 양식",tip:"온라인 예약!",lat:38.6978909,lng:-9.206704,visited:false},
-{id:'s22',cat:"sight",city:"lisbon",name:"오세아나리움",nameEn:"Oceanário de Lisboa",rating:4.7,price:"€25~29",menu:"해달, 해파리",tip:"유럽 최대!",lat:38.7635435,lng:-9.0937415,visited:false},
-{id:'s23',cat:"sight",city:"sintra",name:"페나 궁전",nameEn:"Palácio da Pena",rating:4.4,price:"€14~20",menu:"동화 속 궁전",tip:"예약 필수!",lat:38.7875851,lng:-9.3906089,visited:false}
+{id:'s1',cat:"food",city:"porto",name:"VOLTARIA",nameEn:"Petisqueira Voltaria",rating:4.8,price:"€",closed:"수,일",menu:"프란세지냐, 대구요리",tip:"가정식 요리!",lat:41.1444161,lng:-8.6122994,visited:false,day:1},
+{id:'s2',cat:"food",city:"porto",name:"The Door",nameEn:"The Door Porto",rating:4.8,price:"€€",menu:"테이스팅 코스",tip:"예약 필수 (18시 오픈).",lat:41.1441961,lng:-8.616688,visited:false,day:1},
+{id:'s3',cat:"food",city:"porto",name:"Bota & Bira",nameEn:"Bota & Bira",rating:4.8,price:"€€",closed:"월,일",menu:"립아이, 문어",tip:"스테이크 전문.",lat:41.1424129,lng:-8.6158059,visited:false,day:2},
+{id:'s4',cat:"food",city:"porto",name:"Taberna Dos Mercadores",nameEn:"Taberna Dos Mercadores",rating:4.5,price:"€€",closed:"월",menu:"문어밥",tip:"16석뿐!",lat:41.1413291,lng:-8.6129202,visited:false,day:2},
+{id:'s5',cat:"food",city:"porto",name:"Brasão Aliados",nameEn:"Brasão Aliados",rating:4.6,price:"€€",menu:"프란세지냐",tip:"3/4 사이즈 1인 충분.",lat:41.1491541,lng:-8.6117884,visited:false,day:3},
+{id:'s6',cat:"food",city:"porto",name:"A Despensa",nameEn:"A Despensa",rating:4.8,price:"€€",closed:"월",menu:"파스타, 라자냐",tip:"미쉐린급.",lat:41.147249,lng:-8.613547,visited:false,day:3},
+{id:'s7',cat:"food",city:"lisbon",name:"Taberna Sal Grosso",nameEn:"Taberna Sal Grosso",rating:4.7,price:"€",menu:"문어+고구마매시",tip:"알파마 숨은 맛집!",lat:38.7136987,lng:-9.1244447,visited:false,day:4},
+{id:'s8',cat:"food",city:"lisbon",name:"A Nossa Casa",nameEn:"A Nossa Casa",rating:4.8,price:"€€",menu:"타르타르, 문어",tip:"24석. 예약!",lat:38.7118452,lng:-9.1449444,visited:false,day:4},
+{id:'s9',cat:"food",city:"lisbon",name:"파스테이스 드 벨렝",nameEn:"Pastéis de Belém",rating:4.6,price:"€",menu:"에그타르트",tip:"아침에 줄 짧아요!",lat:38.6975105,lng:-9.203228,visited:false,day:5},
+{id:'s10',cat:"food",city:"lisbon",name:"Time Out Market",nameEn:"Time Out Market",rating:4.4,price:"€€~€€€",menu:"다양한 음식",tip:"한곳에서 다양하게.",lat:38.7070608,lng:-9.1456691,visited:false,day:5},
+{id:'s11',cat:"food",city:"lisbon",name:"Lisbon Tu e Eu",nameEn:"Lisboa Tu & Eu",rating:4.5,price:"€",menu:"오징어+감자",tip:"가성비 로컬.",lat:38.710951,lng:-9.130052,visited:false,day:7},
+{id:'s12',cat:"food",city:"lisbon",name:"Cervejaria Ramiro",nameEn:"Cervejaria Ramiro",rating:4.4,price:"€€€",closed:"월",menu:"타이거새우, 마늘게",tip:"번호표 대기.",lat:38.720257,lng:-9.135743,visited:false,day:7},
+{id:'s13',cat:"food",city:"lisbon",name:"Augusto Lisboa",nameEn:"Augusto Lisboa",rating:4.8,price:"€€",menu:"스크램블에그",tip:"브런치 맛집.",lat:38.714425,lng:-9.130207,visited:false,day:8},
+{id:'s14',cat:"food",city:"lisbon",name:"Copo de Mar",nameEn:"Copo de Mar",rating:4.8,price:"€€",closed:"일",menu:"대구, 문어",tip:"피날레 디너!",lat:38.739801,lng:-9.149103,visited:false,day:8},
+{id:'s15',cat:"sight",city:"porto",name:"상벤투 기차역",nameEn:"Estação São Bento",rating:4.7,price:"무료",menu:"아줄레주 타일",tip:"2만 개 푸른 타일.",lat:41.145492,lng:-8.609544,visited:false,day:1},
+{id:'s16',cat:"sight",city:"porto",name:"클레리구스 탑",nameEn:"Torre dos Clérigos",rating:4.6,price:"€10",menu:"240계단 전망대",tip:"포르투 최고 전망!",lat:41.1456705,lng:-8.6145977,visited:false,day:1},
+{id:'s17',cat:"sight",city:"porto",name:"리브라리아 렐루",nameEn:"Livraria Lello",rating:4.0,price:"€8",menu:"아름다운 서점",tip:"사전 예약 필수!",lat:41.146905,lng:-8.614774,visited:false,day:1},
+{id:'s18',cat:"sight",city:"porto",name:"리베이라 지구",nameEn:"Cais da Ribeira",rating:4.8,price:"무료",menu:"UNESCO 유산",tip:"도우로 강변.",lat:41.14041,lng:-8.612566,visited:false,day:1},
+{id:'s19',cat:"sight",city:"porto",name:"돔 루이스 다리",nameEn:"Ponte Dom Luís I",rating:4.8,price:"무료",menu:"파노라마 뷰",tip:"상층으로!",lat:41.139959,lng:-8.609449,visited:false,day:2},
+{id:'s20',cat:"sight",city:"lisbon",name:"상 조르제 성",nameEn:"Castelo de São Jorge",rating:4.5,price:"€15",menu:"파노라마 뷰",tip:"Lisboa Card 무료.",lat:38.713909,lng:-9.133476,visited:false,day:4},
+{id:'s21',cat:"sight",city:"lisbon",name:"제로니무스 수도원",nameEn:"Mosteiro dos Jerónimos",rating:4.5,price:"€10",closed:"월",menu:"마누엘 양식",tip:"온라인 예약!",lat:38.6978909,lng:-9.206704,visited:false,day:5},
+{id:'s22',cat:"sight",city:"lisbon",name:"오세아나리움",nameEn:"Oceanário de Lisboa",rating:4.7,price:"€25~29",menu:"해달, 해파리",tip:"유럽 최대!",lat:38.7635435,lng:-9.0937415,visited:false,day:8},
+{id:'s23',cat:"sight",city:"sintra",name:"페나 궁전",nameEn:"Palácio da Pena",rating:4.4,price:"€14~20",menu:"동화 속 궁전",tip:"예약 필수!",lat:38.7875851,lng:-9.3906089,visited:false,day:6},
+{id:'c1',cat:"cafe",city:"porto",name:"노시 커피",nameEn:"Noshi Coffee",rating:4.5,price:"€€",hours:"8:00~18:00",menu:"브런치, 아사이볼",tip:"클레리구스 탑 옆! 숨은 정원 테라스.",lat:41.147068,lng:-8.6168155,visited:false,day:1},
+{id:'c2',cat:"cafe",city:"porto",name:"마이 커피 포르투",nameEn:"My Coffee Porto",rating:4.5,price:"€",hours:"9:00~18:00",menu:"플랫화이트, 아사이볼",tip:"리베이라 계단 중간. 도우로강 뷰!",lat:41.1411563,lng:-8.610052,visited:false,day:1},
+{id:'c3',cat:"cafe",city:"porto",name:"7g 로스터",nameEn:"7g Roaster",rating:4.6,price:"€€",hours:"8:30~18:00",menu:"에그 베네딕트, 팬케이크",tip:"가이아 셀러 근처. 자체 로스팅!",lat:41.13695,lng:-8.61402,visited:false,day:2},
+{id:'c4',cat:"cafe",city:"porto",name:"레이타리아 다 킨타",nameEn:"Leitaria da Quinta do Paço",rating:4.2,price:"€€",hours:"9:00~20:00",menu:"에클레어, 샹틸리 크루아상",tip:"1920년대부터 유명한 에클레어!",lat:41.1477236,lng:-8.6149306,visited:false,day:3},
+{id:'c5',cat:"cafe",city:"lisbon",name:"코펜하겐 커피랩",nameEn:"Copenhagen Coffee Lab Alfama",rating:4.3,price:"€€",hours:"7:30~18:00",menu:"시나몬번, 사워도우빵",tip:"알파마 테라스. 대성당 도보 3분!",lat:38.7135217,lng:-9.1286418,visited:false,day:4},
+{id:'c6',cat:"cafe",city:"lisbon",name:"더 포크스 세",nameEn:"The Folks Sé",rating:4.8,price:"€€",hours:"8:30~16:00",menu:"에그 베네딕트, 시르니키, 팬케이크",tip:"리스본 최고 브런치! 대성당 옆.",lat:38.7104984,lng:-9.1343326,visited:false,day:4},
+{id:'c7',cat:"cafe",city:"lisbon",name:"파브리카 다 나타",nameEn:"Fábrica da Nata",rating:4.6,price:"€",hours:"8:00~23:00",menu:"나타(에그타르트)",tip:"벨렝보다 맛있다는 평가도! 바이샤.",lat:38.7126534,lng:-9.1385487,visited:false,day:7},
+{id:'c8',cat:"cafe",city:"lisbon",name:"콰지 카페",nameEn:"Quase Café",rating:4.7,price:"€€",hours:"8:30~16:00",menu:"터키에그, 아사이볼, 브런치",tip:"알파마 대형 브런치. 넉넉한 양!",lat:38.7138059,lng:-9.1303937,visited:false,day:8}
 ];
 
 const SEED_ITIN=[
@@ -295,11 +321,13 @@ function lsSet(key,val){try{localStorage.setItem(key,JSON.stringify(val));localS
 function showStatus(msg,cls){var el=document.getElementById('syncStatus');el.textContent=msg;el.className='sync-status '+(cls||'');setTimeout(()=>{el.textContent='';},4000);}
 
 // ===== INIT: Load from LocalStorage first, then render =====
+var DATA_VER='v3'; // bump to force seed refresh (v3: added day field + cafes)
 function initLocal(){
   var places=lsGet(LS_PLACES);
   var days=lsGet(LS_DAYS);
-  if(!places||!places.length){places=SEED_PLACES;lsSet(LS_PLACES,places);}
-  if(!days||!days.length){days=SEED_ITIN;lsSet(LS_DAYS,days);}
+  var ver=localStorage.getItem('pt_ver');
+  if(!places||!places.length||ver!==DATA_VER){places=SEED_PLACES;lsSet(LS_PLACES,places);localStorage.setItem('pt_ver',DATA_VER);}
+  if(!days||!days.length||ver!==DATA_VER){days=SEED_ITIN;lsSet(LS_DAYS,days);}
   window._places=places;window._places.sort((a,b)=>(b.rating||0)-(a.rating||0));
   window._days=days;window._days.sort((a,b)=>a.day-b.day);
   window._days.forEach(d=>{if(d.stops)d.stops.sort((a,b)=>a.order-b.order);});
@@ -577,14 +605,34 @@ function catIcon(c){return c==='food'?'🍽️':c==='cafe'?'☕':c==='lodge'?'�
 function catColor(c){return c==='food'?'#22c55e':c==='cafe'?'#ec4899':c==='lodge'?'#f59e0b':'#3b82f6';}
 function cityName(c){return c==='porto'?'포르투':c==='lisbon'?'리스본':'신트라';}
 
+var pSort='rating'; // 'rating' or 'day'
+window.toggleSort=function(){
+  pSort=pSort==='rating'?'day':'rating';
+  document.getElementById('sortBtn').classList.toggle('on',pSort==='day');
+  document.getElementById('sortBtn').textContent=pSort==='day'?'⭐ 평점순':'📅 일차순';
+  renderPlaces();
+};
+
 window.renderPlaces=function(){
   var list=window._places||[];var f=pFilter;
   if(f==='food'||f==='cafe'||f==='sight'||f==='lodge')list=list.filter(p=>p.cat===f);
   else if(f==='porto'||f==='lisbon')list=list.filter(p=>p.city===f);
   else if(f==='visited')list=list.filter(p=>p.visited);
+  else if(f==='noday')list=list.filter(p=>!p.day);
+  else if(f&&f.startsWith('d')){var dn=parseInt(f.substring(1));list=list.filter(p=>p.day===dn);}
+  // Sort
+  if(pSort==='day')list=list.slice().sort((a,b)=>(a.day||99)-(b.day||99)||(b.rating||0)-(a.rating||0));
+  else list=list.slice().sort((a,b)=>(b.rating||0)-(a.rating||0));
   if(!list.length){document.getElementById('plist').innerHTML='<div class="empty">장소가 없어요<br>+ 버튼으로 추가!</div>';updatePmap([]);return;}
-  var h='';list.forEach(function(p){
-    h+='<div class="pcard'+(p.visited?' visited':'')+'"><div class="pcard-top"><div class="pcard-icon '+p.cat+'">'+catIcon(p.cat)+'</div><div class="pcard-info"><div class="pcard-name">'+p.name+'</div><div class="pcard-en">'+(p.nameEn||'')+'</div><div class="pcard-meta">';
+  var h='',lastDay=-1;
+  list.forEach(function(p){
+    // Day divider in day-sort mode
+    if(pSort==='day'&&(p.day||0)!==lastDay){
+      lastDay=p.day||0;
+      h+='<div style="padding:8px 4px 4px;font-size:12px;font-weight:700;color:var(--acc)">'+(lastDay?'Day '+lastDay:'📌 미정')+'</div>';
+    }
+    var dayBadge=p.day?'<span class="day-badge set" onclick="event.stopPropagation();openDaySet(\''+p.id+'\','+p.day+')">D'+p.day+'</span>':'<span class="day-badge unset" onclick="event.stopPropagation();openDaySet(\''+p.id+'\',0)">?</span>';
+    h+='<div class="pcard'+(p.visited?' visited':'')+'"><div class="pcard-top"><div class="pcard-icon '+p.cat+'">'+catIcon(p.cat)+'</div><div class="pcard-info"><div class="pcard-name">'+dayBadge+' '+p.name+'</div><div class="pcard-en">'+(p.nameEn||'')+'</div><div class="pcard-meta">';
     if(p.rating)h+='<span class="rt">★ '+p.rating+'</span>';if(p.price)h+='<span class="pr">'+p.price+'</span>';
     h+='<span style="background:rgba(255,255,255,.05);color:var(--dm)">'+cityName(p.city)+'</span>';
     if(p.closed)h+='<span class="cl">휴무 '+p.closed+'</span>';
@@ -601,7 +649,59 @@ window.renderPlaces=function(){
   document.getElementById('plist').innerHTML=h;updatePmap(list);
 };
 
-window.pf=function(f,el){pFilter=f;document.querySelectorAll('.pbar .pbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderPlaces();};
+window.pf=function(f,el){
+  pFilter=f;
+  // Handle both filter rows
+  document.querySelectorAll('#pbar .pbtn, #pbar2 .pbtn:not(#sortBtn)').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(f==='all')document.querySelector('#pbar .pbtn').classList.add('on');
+  renderPlaces();
+};
+
+// Day assignment for places (tap the day badge)
+window.openDaySet=function(id,curDay){
+  var nums=[1,2,3,4,5,6,7,8];
+  var h='<div style="font-size:13px;font-weight:600;margin-bottom:8px">📅 몇일차?</div><div class="day-pick-row">';
+  nums.forEach(function(n){
+    h+='<button class="'+(n===curDay?'active':'')+'" onclick="setPlaceDay(\''+id+'\','+n+')">'+n+'</button>';
+  });
+  h+='<button style="width:auto;padding:0 10px" onclick="setPlaceDay(\''+id+'\',0)">✕</button></div>';
+  // Find the card and insert picker
+  var cards=document.querySelectorAll('.pcard');
+  var places=window._places||[];
+  var idx=places.findIndex(p=>p.id===id);
+  if(idx>=0&&cards.length){
+    // Find correct card in filtered list
+    var filtered=getFilteredList();
+    var fi=filtered.findIndex(p=>p.id===id);
+    if(fi>=0&&cards[fi]){
+      var existing=cards[fi].querySelector('.day-pick-row');
+      if(existing){existing.parentElement.remove();return;} // toggle off
+      var div=document.createElement('div');
+      div.style.cssText='padding:6px 0';div.innerHTML=h;
+      cards[fi].querySelector('.pcard-actions').before(div);
+    }
+  }
+};
+
+function getFilteredList(){
+  var list=window._places||[];var f=pFilter;
+  if(f==='food'||f==='cafe'||f==='sight'||f==='lodge')list=list.filter(p=>p.cat===f);
+  else if(f==='porto'||f==='lisbon')list=list.filter(p=>p.city===f);
+  else if(f==='visited')list=list.filter(p=>p.visited);
+  else if(f==='noday')list=list.filter(p=>!p.day);
+  else if(f&&f.startsWith('d')){var dn=parseInt(f.substring(1));list=list.filter(p=>p.day===dn);}
+  if(pSort==='day')list=list.slice().sort((a,b)=>(a.day||99)-(b.day||99)||(b.rating||0)-(a.rating||0));
+  else list=list.slice().sort((a,b)=>(b.rating||0)-(a.rating||0));
+  return list;
+}
+
+window.setPlaceDay=function(id,day){
+  var places=window._places||[];
+  var p=places.find(x=>x.id===id);
+  if(p){p.day=day||0;}
+  savePlaces();renderPlaces();
+};
 
 window.placeView=function(m){
   document.getElementById('pv1').classList.toggle('on',m==='list');
@@ -638,8 +738,8 @@ window.savePlace=function(){
   var d={cat:document.getElementById('fCat').value,city:document.getElementById('fCity').value,name:document.getElementById('fName').value.trim(),nameEn:document.getElementById('fNameEn').value.trim(),rating:parseFloat(document.getElementById('fRating').value)||0,price:document.getElementById('fPrice').value,hours:document.getElementById('fHours').value.trim(),closed:document.getElementById('fClosed').value.trim(),menu:document.getElementById('fMenu').value.trim(),tip:document.getElementById('fTip').value.trim(),lat:parseFloat(document.getElementById('fLat').value)||0,lng:parseFloat(document.getElementById('fLng').value)||0,visited:false,createdAt:Date.now()};
   if(!d.name){alert('이름을 입력하세요');return;}
   var eid=document.getElementById('modal').dataset.editId;
-  if(eid){var idx=window._places.findIndex(x=>x.id===eid);if(idx>=0){d.id=eid;d.visited=window._places[idx].visited;window._places[idx]=d;}}
-  else{d.id='p'+Date.now();window._places.push(d);}
+  if(eid){var idx=window._places.findIndex(x=>x.id===eid);if(idx>=0){d.id=eid;d.visited=window._places[idx].visited;d.day=window._places[idx].day||0;window._places[idx]=d;}}
+  else{d.id='p'+Date.now();d.day=0;window._places.push(d);}
   savePlaces();closeModal();loadAll();
 };
 
@@ -795,3 +895,4 @@ window.initMap=initMap;
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&libraries=places&callback=initMap"></script>
 </body>
 </html>
+
