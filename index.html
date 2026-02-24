@@ -839,7 +839,7 @@ function initMap(){
   var acInput=document.getElementById('fNameEn');
   var ac=new google.maps.places.Autocomplete(acInput,{
     types:['establishment'],
-    fields:['name','formatted_address','geometry','rating','types','place_id'],
+    fields:['name','formatted_address','geometry','rating','types','place_id','opening_hours','price_level'],
     componentRestrictions:{country:'pt'}
   });
   // Fix mobile: move pac-container into modal and fix touch events
@@ -885,8 +885,34 @@ function initMap(){
     else if(types.indexOf('cafe')>=0)document.getElementById('fCat').value='cafe';
     else if(types.indexOf('lodging')>=0||types.indexOf('hotel')>=0)document.getElementById('fCat').value='lodge';
     else if(types.indexOf('tourist')>=0||types.indexOf('museum')>=0||types.indexOf('church')>=0||types.indexOf('park')>=0)document.getElementById('fCat').value='sight';
+    // Auto-fill price level
+    if(place.price_level!==undefined&&place.price_level!==null){
+      var priceMap={0:'€',1:'€',2:'€€',3:'€€€',4:'€€€'};
+      var pv=priceMap[place.price_level]||'';
+      var sel=document.getElementById('fPrice');
+      for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===pv){sel.selectedIndex=i;break;}}
+    }
+    // Auto-fill opening hours
+    if(place.opening_hours){
+      var wh=place.opening_hours.weekday_text||[];
+      var dayMap={'Monday':'월','Tuesday':'화','Wednesday':'수','Thursday':'목','Friday':'금','Saturday':'토','Sunday':'일'};
+      var closedDays=[];var openTimes=[];
+      wh.forEach(function(line){
+        var parts=line.split(': ');if(parts.length<2)return;
+        var dayEn=parts[0].trim();var timeStr=parts[1].trim();
+        var dayKr=dayMap[dayEn]||dayEn;
+        if(timeStr==='Closed'||timeStr==='휴무'){closedDays.push(dayKr);}
+        else{
+          var clean=timeStr.replace(/\u202f|\u2009|–/g,function(m){return m==='–'?'~':''}).replace(/\s*(AM|PM)/gi,function(m,p){return p.toUpperCase();});
+          if(openTimes.indexOf(clean)<0)openTimes.push(clean);
+        }
+      });
+      if(closedDays.length)document.getElementById('fClosed').value=closedDays.join(',');
+      if(openTimes.length===1)document.getElementById('fHours').value=openTimes[0];
+      else if(openTimes.length>1)document.getElementById('fHours').value=openTimes[0];
+    }
     // Show confirmation
-    document.getElementById('acHint').innerHTML='✅ <b>'+place.name+'</b> 선택됨 — 좌표·평점 자동 입력 완료';
+    document.getElementById('acHint').innerHTML='✅ <b>'+place.name+'</b> 선택됨 — 좌표·평점·영업시간 자동 입력';
     document.getElementById('acHint').style.color='var(--gn)';
   });
 }
@@ -895,4 +921,3 @@ window.initMap=initMap;
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&libraries=places&callback=initMap"></script>
 </body>
 </html>
-
