@@ -227,6 +227,11 @@ html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;back
 <div class="mrow"><div class="mfield"><label>위도</label><input id="fLat" type="number" step="any" placeholder="38.697"></div>
 <div class="mfield"><label>경도</label><input id="fLng" type="number" step="any" placeholder="-9.203"></div></div>
 <p style="font-size:10px;color:var(--dm);margin-top:-4px">💡 Google Maps에서 장소 길게 누르면 좌표 복사 가능</p>
+<div class="mfield"><label>📅 몇일차 일정?</label>
+<div class="day-pick-row" id="fDayRow">
+<button type="button" onclick="pickFDay(1)">1</button><button type="button" onclick="pickFDay(2)">2</button><button type="button" onclick="pickFDay(3)">3</button><button type="button" onclick="pickFDay(4)">4</button><button type="button" onclick="pickFDay(5)">5</button><button type="button" onclick="pickFDay(6)">6</button><button type="button" onclick="pickFDay(7)">7</button><button type="button" onclick="pickFDay(8)">8</button>
+<button type="button" style="width:auto;padding:0 10px;font-size:10px" onclick="pickFDay(0)">미정</button>
+</div></div>
 <div class="mbtn-row"><button class="mbtn cancel" onclick="closeModal()">취소</button><button class="mbtn save" onclick="savePlace()">저장</button></div>
 </div></div>
 <!-- DAY PICKER MODAL -->
@@ -723,6 +728,13 @@ function updatePmap(list){
 window.focusPmap=function(lat,lng){mainTab('places');placeView('map');setTimeout(()=>{pmap.panTo({lat,lng});pmap.setZoom(16);},200);};
 
 // ===== PLACE CRUD =====
+var _fDay=0;
+window.pickFDay=function(n){
+  _fDay=n;
+  document.querySelectorAll('#fDayRow button').forEach(function(b,i){
+    b.classList.toggle('active',i<8?(i+1)===n:n===0);
+  });
+};
 window.openAdd=function(){
   document.getElementById('modalTitle').textContent='새 장소 추가';
   document.getElementById('modal').dataset.editId='';
@@ -730,6 +742,7 @@ window.openAdd=function(){
   document.getElementById('fCat').selectedIndex=0;document.getElementById('fCity').selectedIndex=0;document.getElementById('fPrice').selectedIndex=0;
   document.getElementById('acHint').innerHTML='📍 검색 후 선택하면 좌표·평점·카테고리 자동 입력';
   document.getElementById('acHint').style.color='var(--acc)';
+  pickFDay(0);
   document.getElementById('modal').classList.add('v');
 };
 window.closeModal=function(){document.getElementById('modal').classList.remove('v');};
@@ -738,8 +751,8 @@ window.savePlace=function(){
   var d={cat:document.getElementById('fCat').value,city:document.getElementById('fCity').value,name:document.getElementById('fName').value.trim(),nameEn:document.getElementById('fNameEn').value.trim(),rating:parseFloat(document.getElementById('fRating').value)||0,price:document.getElementById('fPrice').value,hours:document.getElementById('fHours').value.trim(),closed:document.getElementById('fClosed').value.trim(),menu:document.getElementById('fMenu').value.trim(),tip:document.getElementById('fTip').value.trim(),lat:parseFloat(document.getElementById('fLat').value)||0,lng:parseFloat(document.getElementById('fLng').value)||0,visited:false,createdAt:Date.now()};
   if(!d.name){alert('이름을 입력하세요');return;}
   var eid=document.getElementById('modal').dataset.editId;
-  if(eid){var idx=window._places.findIndex(x=>x.id===eid);if(idx>=0){d.id=eid;d.visited=window._places[idx].visited;d.day=window._places[idx].day||0;window._places[idx]=d;}}
-  else{d.id='p'+Date.now();d.day=0;window._places.push(d);}
+  if(eid){var idx=window._places.findIndex(x=>x.id===eid);if(idx>=0){d.id=eid;d.visited=window._places[idx].visited;d.day=_fDay;window._places[idx]=d;}}
+  else{d.id='p'+Date.now();d.day=_fDay;window._places.push(d);}
   savePlaces();closeModal();loadAll();
 };
 
@@ -754,6 +767,7 @@ window.editPlace=function(id){
   document.getElementById('fHours').value=p.hours||'';document.getElementById('fClosed').value=p.closed||'';
   document.getElementById('fMenu').value=p.menu||'';document.getElementById('fTip').value=p.tip||'';
   document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';
+  pickFDay(p.day||0);
   document.getElementById('modal').classList.add('v');
 };
 
@@ -921,4 +935,3 @@ window.initMap=initMap;
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&libraries=places&callback=initMap"></script>
 </body>
 </html>
-
