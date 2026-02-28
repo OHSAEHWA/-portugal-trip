@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>부산 1박2일 여행</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1628;--card:#132038;--card2:#1a2d4a;--acc:#38bdf8;--tx:#e8edf4;--dm:#6b8299;--bl:#3b82f6;--gn:#22c55e;--pp:#a855f7;--rd:#ef4444;--or:#f59e0b;--pk:#ec4899;--tl:#14b8a6;--cyan:#06b6d4}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx)}
+.app{display:flex;flex-direction:column;height:100dvh}
+.top{padding:max(env(safe-area-inset-top),8px) 16px 0;background:var(--bg);z-index:50}
+.top h1{font-size:17px;font-weight:700;color:var(--acc)}.top p{font-size:11px;color:var(--dm);margin-top:2px}
+.mtabs{display:flex;margin:8px 16px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.mtab{flex:1;padding:9px 0;text-align:center;font-size:13px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer;transition:.2s}
+.mtab.on{background:rgba(56,189,248,.15);color:var(--acc)}
+.panel{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}.panel.v{display:flex}
+.days{display:flex;gap:6px;padding:10px 16px 8px;overflow-x:auto;scrollbar-width:none}.days::-webkit-scrollbar{display:none}
+.db{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:0;color:var(--dm);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}
+.db.on{background:var(--acc);color:#000;border-color:var(--acc)}
+.db .c{font-size:10px;font-weight:400;opacity:.7}
+.vt{display:flex;margin:0 16px 8px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.vb{flex:1;padding:7px 0;text-align:center;font-size:12px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer}
+.vb.on{background:rgba(56,189,248,.15);color:var(--acc)}
+.mw{flex:1;position:relative;display:none;min-height:0}.mw.v{display:flex;flex-direction:column}
+#map{width:100%;flex:1;min-height:200px}
+#pmap{width:100%;height:100%}
+.lw{flex:1;overflow-y:auto;display:none;padding:0 12px 120px;-webkit-overflow-scrolling:touch;min-height:0}.lw.v{display:block}
+.ict{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+@media(min-width:768px){.vt{display:none}.ict,.pcontent{flex-direction:row!important}.lw{display:block!important;width:400px;min-width:400px;flex:none!important;border-right:1px solid rgba(255,255,255,.06);padding-bottom:40px}.mw{display:flex!important;flex-direction:column!important;flex:1!important}#pmap{display:block!important;flex:1}}
+.dh{padding:12px 4px 8px}.dh h2{font-size:16px;font-weight:700;color:var(--acc)}.dh p{font-size:12px;color:var(--dm);line-height:1.5;margin-top:4px}
+.st{display:flex;gap:10px;padding:12px 10px;border-radius:10px;cursor:pointer;transition:.15s;position:relative}
+.st:active,.st.on{background:var(--card2)}
+.sn{width:30px;height:30px;min-width:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;margin-top:1px}
+.sn.sight{background:var(--bl)}.sn.food{background:var(--gn)}.sn.cafe{background:var(--pk)}.sn.lodge{background:var(--or)}.sn.transport-marker{background:var(--pp)}
+.si{flex:1;min-width:0}
+.nm{font-size:13px;font-weight:600;line-height:1.35}.ne{font-size:11px;color:var(--dm);font-weight:400}
+.sm{display:flex;gap:8px;margin-top:3px;font-size:11px;color:var(--dm)}.sm .tm{color:var(--acc);font-weight:600}
+.nt{font-size:11px;color:var(--dm);line-height:1.55;margin-top:6px;display:none}
+.st.on .nt{display:block}
+.st-actions{display:none;gap:4px;margin-top:6px}
+.st.on .st-actions{display:flex}
+.sa{padding:4px 8px;border-radius:5px;border:none;font-size:10px;font-family:inherit;cursor:pointer;font-weight:500}
+.sa.up{background:rgba(59,130,246,.1);color:var(--bl)}.sa.down{background:rgba(59,130,246,.1);color:var(--bl)}
+.sa.del{background:rgba(239,68,68,.1);color:var(--rd)}
+.tl{display:flex;padding:0 0 0 24px;min-height:6px}.tl-b{width:2px;background:rgba(255,255,255,.06)}
+.tp{display:flex;align-items:flex-start;gap:8px;padding:4px 0 4px 15px}
+.ti{width:22px;height:22px;min-width:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.ti.walk{background:rgba(59,130,246,.12);color:var(--bl)}.ti.metro{background:rgba(245,158,11,.12);color:var(--or)}.ti.bus{background:rgba(168,85,247,.12);color:var(--pp)}.ti.drive{background:rgba(20,184,166,.12);color:var(--tl)}.ti.transit{background:rgba(168,85,247,.12);color:var(--pp)}
+.tt{font-size:11px;color:var(--dm);line-height:1.45}.tt b{color:var(--tx);font-weight:600}
+.lgd{position:absolute;bottom:16px;left:12px;right:12px;z-index:5;display:flex;gap:12px;justify-content:center;background:rgba(10,22,40,.9);backdrop-filter:blur(8px);border-radius:10px;padding:8px 16px;border:1px solid rgba(255,255,255,.06)}
+.lgd span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dm)}.lgd i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.map-card{position:absolute;bottom:0;left:0;right:0;z-index:10;background:var(--card);border-radius:16px 16px 0 0;padding:16px 16px calc(10px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -4px 20px rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08)}
+.map-card.show{transform:translateY(0)}
+.mc-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:0 auto 12px}
+.mc-top{display:flex;align-items:flex-start;gap:10px}
+.mc-num{width:34px;height:34px;min-width:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.mc-info{flex:1;min-width:0}.mc-name{font-size:15px;font-weight:700;line-height:1.35}.mc-en{font-size:11px;color:var(--dm)}
+.mc-meta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.mc-meta span{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.mc-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--dm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mc-note{font-size:12px;color:var(--dm);line-height:1.6;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
+.mc-nav{display:flex;gap:8px;margin-top:10px}
+.mc-nav button{flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.mc-nav .prev{background:rgba(255,255,255,.06);color:var(--dm)}.mc-nav .next{background:rgba(56,189,248,.15);color:var(--acc)}
+.pbar{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap}
+.pbtn{padding:5px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:0;color:var(--dm);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer}
+.pbtn.on{border-color:var(--acc);color:var(--acc);background:rgba(56,189,248,.1)}
+.pview{display:flex;margin:8px 16px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.pvb{flex:1;padding:7px;text-align:center;font-size:12px;font-weight:600;background:0;color:var(--dm);border:none;font-family:inherit;cursor:pointer}.pvb.on{background:rgba(56,189,248,.15);color:var(--acc)}
+.pcontent{display:flex;flex:1;overflow:hidden}
+.plist{flex:1;overflow-y:auto;padding:8px 12px 120px;-webkit-overflow-scrolling:touch}
+#pmap{display:none}
+.pcard{background:var(--card);border-radius:12px;padding:14px;margin-bottom:8px}
+.pcard.visited{opacity:.5}
+.pcard-top{display:flex;align-items:flex-start;gap:10px}
+.pcard-icon{width:36px;height:36px;min-width:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.pcard-icon.food{background:rgba(34,197,94,.15)}.pcard-icon.cafe{background:rgba(236,72,153,.15)}.pcard-icon.sight{background:rgba(59,130,246,.15)}.pcard-icon.lodge{background:rgba(245,158,11,.15)}
+.pcard-info{flex:1;min-width:0}.pcard-name{font-size:14px;font-weight:600}.pcard-en{font-size:11px;color:var(--dm)}
+.pcard-meta{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.pcard-meta span{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.pcard-detail{margin-top:8px;font-size:11px;color:var(--dm);line-height:1.6}
+.pcard-detail div{margin-bottom:3px}
+.pcard-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.pact{padding:5px 10px;border-radius:6px;border:none;font-size:11px;font-family:inherit;cursor:pointer;font-weight:500}
+.pact.visit{background:rgba(34,197,94,.15);color:var(--gn)}.pact.visit.done{background:rgba(34,197,94,.3);color:#fff}
+.pact.del{background:rgba(239,68,68,.1);color:var(--rd)}
+.pact.mapbtn{background:rgba(59,130,246,.1);color:var(--bl)}
+.pact.additin{background:rgba(56,189,248,.15);color:var(--acc)}
+.add-btn{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--acc);color:#000;font-size:24px;border:none;box-shadow:0 4px 16px rgba(0,0,0,.4);cursor:pointer;z-index:100;display:none}
+.panel.v .add-btn{display:block}
+.add-stop{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;margin:8px 4px;border-radius:10px;border:1px dashed rgba(255,255,255,.1);background:0;color:var(--dm);font-size:12px;font-family:inherit;cursor:pointer;width:calc(100% - 8px)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-end;justify-content:center}.modal-bg.v{display:flex}
+.modal{background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:24px 20px calc(20px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.modal h2{font-size:17px;font-weight:700;color:var(--acc);margin-bottom:16px}
+.mfield{margin-bottom:12px}.mfield label{display:block;font-size:12px;color:var(--dm);margin-bottom:4px;font-weight:500}
+.mfield input,.mfield textarea,.mfield select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:var(--bg);color:var(--tx);font-size:13px;font-family:inherit;outline:none}
+.mfield textarea{height:60px;resize:none}.mfield select{-webkit-appearance:none}
+.mrow{display:flex;gap:8px}.mrow .mfield{flex:1}
+.mbtn-row{display:flex;gap:8px;margin-top:16px}
+.mbtn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+.mbtn.save{background:var(--acc);color:#000}.mbtn.cancel{background:rgba(255,255,255,.08);color:var(--dm)}
+.daypick{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.daypick button{padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:var(--bg);color:var(--tx);font-size:13px;font-family:inherit;cursor:pointer}
+.daypick button:active{background:var(--acc);color:#000}
+.empty{text-align:center;padding:60px 20px;color:var(--dm);font-size:13px}
+.sync-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:var(--card);color:var(--acc);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s;flex-shrink:0}
+.day-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;font-size:10px;font-weight:700;cursor:pointer;transition:.2s}
+.day-badge.set{background:var(--acc);color:#0a1628}.day-badge.unset{background:rgba(255,255,255,.08);color:var(--dm);border:1px dashed rgba(255,255,255,.15)}
+.day-pick-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.day-pick-row button{width:28px;height:28px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:var(--card2);color:var(--tx);font-size:11px;font-weight:700;cursor:pointer;transition:.2s}
+.day-pick-row button.active{background:var(--acc);color:#0a1628;border-color:var(--acc)}
+.book-badge{display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(239,68,68,.15);color:#ef4444;cursor:pointer;border:1px solid rgba(239,68,68,.3);vertical-align:middle}
+.book-tip{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 12px;margin-top:6px;font-size:11px;line-height:1.6;color:var(--tx);animation:fadeIn .2s}
+.book-tip a{color:var(--acc);text-decoration:underline}
+.book-tip .bt-title{font-weight:700;color:#ef4444;margin-bottom:4px;font-size:12px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.pac-container{background:var(--card)!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:10px!important;margin-top:4px!important;font-family:'Noto Sans KR',sans-serif!important;z-index:10000!important;box-shadow:0 8px 24px rgba(0,0,0,.5)!important}
+.pac-item{padding:12px 14px!important;border-top:1px solid rgba(255,255,255,.06)!important;color:var(--tx)!important;font-size:13px!important;cursor:pointer!important}
+.pac-item:first-child{border-top:none!important}
+.pac-item:hover,.pac-item-selected{background:var(--card2)!important}
+.pac-item-query{color:var(--acc)!important;font-weight:600!important}
+.pac-icon{display:none!important}.pac-matched{color:var(--acc)!important}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div><h1>🌊 부산 1박2일 여행</h1><p>일요일~월요일 · 여유로운 바다 힐링</p></div>
+<div style="display:flex;gap:6px">
+<button class="sync-btn" onclick="openExport()" style="font-size:9px;line-height:1.1;word-break:keep-all">구글맵</button>
+</div></div>
+</div>
+<div class="mtabs">
+<button class="mtab on" onclick="mainTab('itin')" id="mt1">📅 일정</button>
+<button class="mtab" onclick="mainTab('places')" id="mt2">📍 저장소</button>
+</div>
+<!-- ITINERARY -->
+<div class="panel v" id="itinPanel">
+<div class="days" id="dy"></div>
+<div class="vt"><button class="vb" onclick="itinView('map')" id="iv1">🗺 지도</button><button class="vb on" onclick="itinView('list')" id="iv2">📋 일정</button></div>
+<div class="ict">
+<div class="lw v" id="lw"><div id="ls"></div></div>
+<div class="mw" id="mw"><div id="map"></div>
+<div class="lgd"><span><i style="background:var(--bl)"></i>관광</span><span><i style="background:var(--gn)"></i>맛집</span><span><i style="background:var(--pk)"></i>카페</span><span><i style="background:var(--or)"></i>숙소</span></div>
+<div class="map-card" id="mapCard">
+<div class="mc-handle"></div>
+<div class="mc-top"><div class="mc-num" id="mcNum"></div>
+<div class="mc-info"><div class="mc-name" id="mcName"></div><div class="mc-en" id="mcEn"></div><div class="mc-meta" id="mcMeta"></div></div>
+<button class="mc-close" onclick="closeCard()">✕</button>
+</div>
+<div class="mc-note" id="mcNote"></div>
+<div class="mc-nav"><button class="prev" onclick="navCard(-1)">← 이전</button><button class="next" onclick="navCard(1)">다음 →</button></div>
+</div>
+</div></div></div>
+<!-- PLACES -->
+<div class="panel" id="placesPanel">
+<div class="pbar" id="pbar">
+<button class="pbtn on" onclick="pf('all',this)">전체</button>
+<button class="pbtn" onclick="pf('food',this)">🍽️ 맛집</button>
+<button class="pbtn" onclick="pf('cafe',this)">☕ 카페</button>
+<button class="pbtn" onclick="pf('sight',this)">🏛️ 관광</button>
+</div>
+<div class="pbar" id="pbar2" style="padding-top:6px">
+<button class="pbtn" onclick="pf('d1',this)">D1</button>
+<button class="pbtn" onclick="pf('d2',this)">D2</button>
+<button class="pbtn" onclick="pf('unset',this)">미정</button>
+</div>
+<div class="pview"><button class="pvb on" onclick="pview('list')" id="pv1">📋 목록</button><button class="pvb" onclick="pview('map')" id="pv2">🗺 지도</button></div>
+<div class="pcontent">
+<div class="plist" id="plist"></div>
+<div class="mw" id="pmw" style="display:none"><div id="pmap"></div></div>
+</div>
+<button class="add-btn" onclick="openModal()">+</button>
+</div>
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modal"><div class="modal">
+<h2 id="modalTitle">장소 추가</h2>
+<div class="mrow"><div class="mfield"><label>카테고리</label><select id="fCat"><option value="food">🍽️ 맛집</option><option value="cafe">☕ 카페</option><option value="sight">🏛️ 관광</option></select></div>
+<div class="mfield"><label>지역</label><select id="fCity"><option value="haeundae">해운대</option><option value="gwangalli">광안리</option><option value="seomyeon">서면</option><option value="nampo">남포동</option><option value="yeongdo">영도</option><option value="gijang">기장</option><option value="other">기타</option></select></div></div>
+<div class="mfield"><label>이름</label><input id="fName" placeholder="예: 수변최고돼지국밥"></div>
+<div class="mfield"><label>검색 (Google Places)</label><input id="fSearch" placeholder="장소 검색..."></div>
+<div class="mrow"><div class="mfield"><label>평점</label><input id="fRating" type="number" step="0.1" min="0" max="5" placeholder="4.5"></div>
+<div class="mfield"><label>가격대</label><select id="fPrice"><option value="">선택</option><option value="₩">₩ (~1만원)</option><option value="₩₩">₩₩ (~3만원)</option><option value="₩₩₩">₩₩₩ (3만원+)</option><option value="무료">무료</option></select></div></div>
+<div class="mrow"><div class="mfield"><label>영업시간</label><input id="fHours" placeholder="10:00~22:00"></div>
+<div class="mfield"><label>휴무일</label><input id="fClosed" placeholder="월요일"></div></div>
+<div class="mfield"><label>추천메뉴/하이라이트</label><input id="fMenu" placeholder="돼지국밥, 수육"></div>
+<div class="mfield"><label>한줄팁</label><textarea id="fTip" placeholder="팁을 입력하세요"></textarea></div>
+<div class="mrow"><div class="mfield"><label>위도</label><input id="fLat" type="number" step="any" placeholder="35.158"></div>
+<div class="mfield"><label>경도</label><input id="fLng" type="number" step="any" placeholder="129.160"></div></div>
+<p style="font-size:10px;color:var(--dm);margin-top:-4px">💡 Google Maps에서 장소 길게 누르면 좌표 복사 가능</p>
+<div class="mfield"><label>📅 몇일차 일정?</label>
+<div class="day-pick-row" id="fDayRow">
+<button type="button" onclick="pickFDay(1)">1</button><button type="button" onclick="pickFDay(2)">2</button>
+<button type="button" style="width:auto;padding:0 10px;font-size:10px" onclick="pickFDay(0)">미정</button>
+</div></div>
+<div class="mbtn-row"><button class="mbtn cancel" onclick="closeModal()">취소</button><button class="mbtn save" onclick="savePlace()">저장</button></div>
+</div></div>
+<!-- DAY PICKER -->
+<div class="modal-bg" id="dayModal"><div class="modal">
+<h2>어느 날에 추가할까요?</h2>
+<div class="daypick" id="dayPick"></div>
+<div class="mbtn-row"><button class="mbtn cancel" onclick="closeDayModal()">취소</button></div>
+</div></div>
+<!-- EXPORT -->
+<div class="modal-bg" id="exportModal"><div class="modal">
+<h2>📤 Google Maps에서 열기</h2>
+<p style="font-size:12px;color:var(--dm);margin-bottom:12px">탭하면 Google Maps에서 바로 열려요.</p>
+<div style="display:flex;flex-direction:column;gap:6px">
+<button class="mbtn save" onclick="openInGmaps('day')" style="text-align:left;padding:12px">📅 현재 일정 (Day <span id="expDay">1</span>)</button>
+<button class="mbtn save" onclick="openInGmaps('food')" style="text-align:left;padding:12px">🍽️ 맛집</button>
+<button class="mbtn save" onclick="openInGmaps('cafe')" style="text-align:left;padding:12px">☕ 카페</button>
+<button class="mbtn save" onclick="openInGmaps('sight')" style="text-align:left;padding:12px">🏛️ 관광지</button>
+</div>
+<div class="mbtn-row" style="margin-top:12px"><button class="mbtn cancel" onclick="closeExport()">닫기</button></div>
+</div></div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const LS_PLACES='bs_places';
+const LS_DAYS='bs_days';
+const DATA_VER=1;
+
+// ===== SEED DATA =====
+const SEED_PLACES=[
+// == DAY 1 맛집 (일요일) ==
+{id:'s1',cat:"food",city:"haeundae",name:"수변최고돼지국밥",rating:4.5,price:"₩",hours:"08:00~04:00",menu:"항정국밥, 수육",tip:"24시간급! 아침 해장으로 최고. 항정살이 두툼해요.",lat:35.1537,lng:129.1178,visited:false,day:1},
+{id:'s2',cat:"food",city:"haeundae",name:"해운대 원조할매국밥",rating:4.3,price:"₩",hours:"24시간",menu:"돼지국밥, 내장국밥",tip:"해운대 40년 노포. 든든한 한 끼!",lat:35.1622,lng:129.1635,visited:false,day:1},
+{id:'s3',cat:"food",city:"gwangalli",name:"개미집",rating:4.6,price:"₩₩",hours:"11:00~22:00",closed:"화",menu:"매운 낙곱새",tip:"광안리 매운맛 성지! 안 매운맛도 가능.",lat:35.1534,lng:129.1188,visited:false,day:1},
+{id:'s4',cat:"food",city:"gwangalli",name:"융캉찌에",rating:4.7,price:"₩₩",hours:"11:30~21:00",closed:"화",menu:"우육탕면, 가지튀김",tip:"미쉐린 빕구르망! 평일 12시 전 도착 추천.",lat:35.1530,lng:129.1195,visited:false,day:1,book:{required:true,how:"캐치테이블 앱 또는 현장 웨이팅",url:"https://app.catchtable.co.kr",tip:"주말 웨이팅 30분+. 11시 20분 도착이 안전!"}},
+{id:'s5',cat:"food",city:"gwangalli",name:"비비재",rating:4.5,price:"₩",hours:"11:00~21:00",menu:"육전비빔밥",tip:"깔끔한 비빔밥. 회전 빠름!",lat:35.1528,lng:129.1185,visited:false,day:1},
+// == DAY 2 맛집 (월요일) ==
+{id:'s6',cat:"food",city:"nampo",name:"영동밀면",rating:4.4,price:"₩",hours:"10:00~21:30",menu:"밀면, 만두",tip:"부산역 앞! 쫄깃한 밀면이 대표.",lat:35.1154,lng:129.0408,visited:false,day:2},
+{id:'s7',cat:"food",city:"nampo",name:"동래할매파전",rating:4.3,price:"₩₩",hours:"10:30~22:00",menu:"해물파전, 동동주",tip:"부산 대표 파전! 바삭하고 두툼.",lat:35.0980,lng:129.0337,visited:false,day:2},
+{id:'s8',cat:"food",city:"nampo",name:"삼진어묵 본점",rating:4.5,price:"₩",hours:"09:00~21:00",menu:"어묵고로케, 어묵탕",tip:"기념품으로도 인기! 어묵고로케 필수.",lat:35.0978,lng:129.0286,visited:false,day:2},
+{id:'s9',cat:"food",city:"yeongdo",name:"영도해녀촌",rating:4.2,price:"₩₩",hours:"09:00~21:00",menu:"성게알김밥, 해산물",tip:"해녀들이 직접 잡은 해산물!",lat:35.0727,lng:129.0686,visited:false,day:2},
+// == DAY 1 관광 ==
+{id:'s10',cat:"sight",city:"haeundae",name:"해운대해수욕장",rating:4.5,price:"무료",menu:"백사장 산책, 바다 뷰",tip:"부산 대표 해변! 아침 산책 추천.",lat:35.1587,lng:129.1604,visited:false,day:1},
+{id:'s11',cat:"sight",city:"haeundae",name:"동백섬 해안산책로",rating:4.7,price:"무료",hours:"24시간",menu:"누리마루, 등대, 해안 절경",tip:"한 바퀴 40분. 해운대~광안대교 파노라마!",lat:35.1531,lng:129.1538,visited:false,day:1},
+{id:'s12',cat:"sight",city:"gwangalli",name:"광안리해수욕장",rating:4.6,price:"무료",menu:"광안대교 야경, 해변 산책",tip:"석양+야경 모두 아름다워요! 저녁 필수.",lat:35.1532,lng:129.1186,visited:false,day:1},
+{id:'s13',cat:"sight",city:"gwangalli",name:"민락수변공원",rating:4.5,price:"무료",hours:"24시간",menu:"광안대교 뷰, 피크닉",tip:"야경 명소! 편의점 사와서 치맥 피크닉 가능.",lat:35.1491,lng:129.1275,visited:false,day:1},
+{id:'s14',cat:"sight",city:"haeundae",name:"해운대 블루라인파크",rating:4.4,price:"₩₩",hours:"09:30~18:00",menu:"해변열차, 스카이캡슐",tip:"사전 예약 필수! 미포→청사포 구간 추천.",lat:35.1628,lng:129.1784,visited:false,day:1,book:{required:true,how:"공식 홈페이지 예약",url:"https://www.bluelinepark.com",tip:"당일 현장 발권 어려움! 2~3일 전 예약 추천. 3인 스카이캡슐 45,000원."}},
+// == DAY 2 관광 ==
+{id:'s15',cat:"sight",city:"yeongdo",name:"흰여울문화마을",rating:4.4,price:"무료",menu:"해안 절벽 위 마을, 벽화",tip:"영도 감성! 영화 '범죄와의 전쟁' 촬영지.",lat:35.0781,lng:129.0456,visited:false,day:2},
+{id:'s16',cat:"sight",city:"nampo",name:"감천문화마을",rating:4.2,price:"무료",menu:"알록달록 마을, 벽화",tip:"'한국의 산토리니'. 어린왕자 포토존!",lat:35.0974,lng:129.0105,visited:false,day:2},
+{id:'s17',cat:"sight",city:"nampo",name:"자갈치시장",rating:4.3,price:"무료",menu:"활어회, 해산물 구경",tip:"2층에서 회 먹기 가능. 흥정은 기본!",lat:35.0965,lng:129.0305,visited:false,day:2},
+{id:'s18',cat:"sight",city:"nampo",name:"BIFF광장",rating:4.0,price:"무료",menu:"씨앗호떡, 거리 구경",tip:"남포동 중심! 씨앗호떡 3000원.",lat:35.0983,lng:129.0286,visited:false,day:2},
+{id:'s19',cat:"sight",city:"nampo",name:"용두산공원/부산타워",rating:4.5,price:"₩",hours:"10:00~22:00",menu:"전망대, 야경",tip:"남포동 전경 한눈에! 저녁 야경 추천.",lat:35.1006,lng:129.0322,visited:false,day:2},
+{id:'s20',cat:"sight",city:"nampo",name:"송도해상케이블카",rating:4.4,price:"₩₩",hours:"09:00~22:00",menu:"바다 위 케이블카",tip:"투명바닥 크리스탈캐빈 추천! 왕복 20분.",lat:35.0762,lng:129.0176,visited:false,day:2,book:{required:true,how:"공식 홈페이지 또는 현장 발권",url:"https://busanaircruise.co.kr",tip:"주말 대기 30분+. 온라인 예약 추천!"}},
+// == 카페 ==
+{id:'c1',cat:"cafe",city:"haeundae",name:"카페 슬로우파크",rating:4.6,price:"₩₩",hours:"10:00~22:00",menu:"크로플, 플랫화이트",tip:"해운대 오션뷰 루프탑! 일몰 타이밍 추천.",lat:35.1598,lng:129.1438,visited:false,day:1},
+{id:'c2',cat:"cafe",city:"gwangalli",name:"온더선셋",rating:4.5,price:"₩₩",hours:"11:00~23:00",menu:"디저트, 커피",tip:"광안대교 정면 뷰! 석양 명소.",lat:35.1539,lng:129.1208,visited:false,day:1},
+{id:'c3',cat:"cafe",city:"haeundae",name:"딥플로우커피",rating:4.7,price:"₩",hours:"10:00~20:00",menu:"핸드드립, 플랫화이트",tip:"해운대 로컬 힙카페. 자체 로스팅!",lat:35.1602,lng:129.1621,visited:false,day:1},
+{id:'c4',cat:"cafe",city:"yeongdo",name:"모모스커피 본점",rating:4.6,price:"₩₩",hours:"09:00~21:00",menu:"에스프레소, 크루아상",tip:"영도 스페셜티 성지. 부산 대표 카페!",lat:35.0879,lng:129.0395,visited:false,day:2},
+{id:'c5',cat:"cafe",city:"nampo",name:"블루빈커피",rating:4.4,price:"₩",hours:"10:00~20:00",menu:"드립커피, 베이커리",tip:"태종대 가는 길 쉬어가기 좋아요.",lat:35.0753,lng:129.0440,visited:false,day:2}
+];
+
+// ===== DAY DATA =====
+const SEED_DAYS=[
+{day:1,city:'haeundae',title:'해운대·광안리',sub:'바다 산책 & 야경',stops:[
+  {order:0,cat:'sight',name:'해운대해수욕장',nameEn:'Haeundae Beach',lat:35.1587,lng:129.1604,tm:'09:30',dur:'60분',note:'아침 바다 산책. 한적한 백사장 즐기기!'},
+  {order:1,cat:'cafe',name:'☕ 딥플로우커피',nameEn:'딥플로우커피',lat:35.1602,lng:129.1621,tm:'10:30',dur:'40분',note:'해운대 로컬 힙카페에서 모닝커피'},
+  {order:2,cat:'sight',name:'동백섬 해안산책로',nameEn:'동백섬 해안산책로',lat:35.1531,lng:129.1538,tm:'11:30',dur:'60분',note:'누리마루 APEC하우스 → 해안절벽 → 등대'},
+  {order:3,cat:'food',name:'🍽️ 수변최고돼지국밥',nameEn:'수변최고돼지국밥',lat:35.1537,lng:129.1178,tm:'13:00',dur:'50분',note:'항정국밥으로 든든한 점심!'},
+  {order:4,cat:'sight',name:'광안리해수욕장',nameEn:'광안리해수욕장',lat:35.1532,lng:129.1186,tm:'14:30',dur:'90분',note:'해변 산책 + 주변 골목 탐방'},
+  {order:5,cat:'cafe',name:'☕ 온더선셋',nameEn:'온더선셋',lat:35.1539,lng:129.1208,tm:'16:30',dur:'60분',note:'광안대교 뷰 카페에서 석양 감상'},
+  {order:6,cat:'food',name:'🍽️ 융캉찌에',nameEn:'융캉찌에',lat:35.1530,lng:129.1195,tm:'18:00',dur:'60분',note:'미쉐린 빕구르망! 우육탕면 추천'},
+  {order:7,cat:'sight',name:'민락수변공원',nameEn:'민락수변공원',lat:35.1491,lng:129.1275,tm:'19:30',dur:'60분',note:'광안대교 야경 감상. 편의점 치맥 피크닉!'}
+]},
+{day:2,city:'nampo',title:'영도·남포동',sub:'감성 마을 & 로컬 맛집',stops:[
+  {order:0,cat:'cafe',name:'☕ 모모스커피 본점',nameEn:'모모스커피 본점',lat:35.0879,lng:129.0395,tm:'09:30',dur:'50분',note:'영도 스페셜티 커피 성지에서 아침!'},
+  {order:1,cat:'sight',name:'흰여울문화마을',nameEn:'흰여울문화마을',lat:35.0781,lng:129.0456,tm:'10:30',dur:'60분',note:'해안 절벽 위 마을 산책. 영화 촬영지!'},
+  {order:2,cat:'food',name:'🍽️ 영도해녀촌',nameEn:'영도해녀촌',lat:35.0727,lng:129.0686,tm:'12:00',dur:'60분',note:'성게알김밥 + 신선 해산물'},
+  {order:3,cat:'sight',name:'감천문화마을',nameEn:'감천문화마을',lat:35.0974,lng:129.0105,tm:'13:30',dur:'90분',note:'알록달록 마을! 어린왕자 포토존'},
+  {order:4,cat:'sight',name:'BIFF광장',nameEn:'BIFF광장',lat:35.0983,lng:129.0286,tm:'15:30',dur:'40분',note:'씨앗호떡 + 남포동 거리 구경'},
+  {order:5,cat:'food',name:'🍽️ 삼진어묵 본점',nameEn:'삼진어묵 본점',lat:35.0978,lng:129.0286,tm:'16:30',dur:'30분',note:'어묵고로케! 기념품도 여기서'},
+  {order:6,cat:'sight',name:'자갈치시장',nameEn:'자갈치시장',lat:35.0965,lng:129.0305,tm:'17:00',dur:'60분',note:'활어회 구경 + 2층에서 저녁 회!'},
+  {order:7,cat:'food',name:'🍽️ 동래할매파전',nameEn:'동래할매파전',lat:35.0980,lng:129.0337,tm:'18:30',dur:'60분',note:'마무리는 해물파전 + 동동주!'}
+]}
+];
+
+// ===== STATE =====
+var cur=0,sel=null,gmap,gmks=[],gpath,gIW,pMap,pMks=[];
+var pFilter='all',pViewMode='list',_fDay=0;
+window._places=[];window._days=[];
+
+// ===== LOCAL STORAGE =====
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+window.savePlaces=function(){lsSet(LS_PLACES,window._places);};
+window.saveDay=function(id,d){lsSet(LS_DAYS,window._days);};
+
+// ===== INIT =====
+function loadAll(){
+  if(!lsGet(LS_PLACES)){
+    window._places=JSON.parse(JSON.stringify(SEED_PLACES));
+    savePlaces();
+  }else{
+    window._places=lsGet(LS_PLACES);
+    // Merge new seed places
+    SEED_PLACES.forEach(function(sp){
+      if(!window._places.find(p=>p.id===sp.id))window._places.push(sp);
+    });
+    savePlaces();
+  }
+  if(!lsGet(LS_DAYS)){
+    window._days=JSON.parse(JSON.stringify(SEED_DAYS));
+    lsSet(LS_DAYS,window._days);
+  }else{window._days=lsGet(LS_DAYS);}
+  renderDays();renderItinList();renderPlaces();
+}
+
+// ===== TABS =====
+window.mainTab=function(t){
+  document.getElementById('itinPanel').classList.toggle('v',t==='itin');
+  document.getElementById('placesPanel').classList.toggle('v',t==='places');
+  document.getElementById('mt1').classList.toggle('on',t==='itin');
+  document.getElementById('mt2').classList.toggle('on',t==='places');
+  if(t==='itin')updateItinMap();
+  if(t==='places'&&pViewMode==='map')setTimeout(()=>{if(pMap){google.maps.event.trigger(pMap,'resize');}},100);
+};
+window.itinView=function(v){
+  document.getElementById('lw').classList.toggle('v',v==='list');
+  document.getElementById('mw').classList.toggle('v',v==='map');
+  document.getElementById('iv1').classList.toggle('on',v==='map');
+  document.getElementById('iv2').classList.toggle('on',v==='list');
+  if(v==='map'){setTimeout(function(){if(gmap){google.maps.event.trigger(gmap,'resize');updateItinMap();}},150);}
+};
+
+// ===== DAY BUTTONS =====
+function renderDays(){
+  var h='';
+  window._days.forEach(function(d,i){
+    h+='<button class="db'+(i===cur?' on':'')+'" onclick="pickDay('+i+')"><b>Day '+d.day+'</b> <span class="c">'+d.sub+'</span></button>';
+  });
+  document.getElementById('dy').innerHTML=h;
+}
+window.pickDay=function(i){cur=i;sel=null;renderDays();renderItinList();updateItinMap();};
+
+// ===== ITINERARY LIST =====
+function renderItinList(){
+  var d=window._days[cur];if(!d)return;
+  var stops=d.stops||[];
+  var h='<div class="dh"><h2>Day '+d.day+' · '+d.title+'</h2><p>'+d.sub+' · '+(stops.length)+'개 스톱</p></div>';
+  stops.forEach(function(x,i){
+    var ac=sel===i?' on':'';
+    var catClass=x.cat||'sight';
+    h+='<div class="st'+ac+'" onclick="pickStop('+i+')" id="s'+i+'">';
+    h+='<div class="sn '+catClass+'">'+(i+1)+'</div>';
+    var bookMatch=null;
+    var places=window._places||[];
+    var placeMatch=x.nameEn?places.find(function(p){return p.name===x.nameEn||p.nameEn===x.nameEn;}):null;
+    if(!placeMatch&&x.nameEn){placeMatch=places.find(function(p){return x.nameEn.indexOf(p.name)>=0||p.name.indexOf(x.nameEn)>=0;});}
+    if(placeMatch&&placeMatch.book&&placeMatch.book.required)bookMatch=placeMatch;
+    if(!bookMatch&&x.note&&x.note.indexOf('예약')>=0){bookMatch={book:{required:true,how:'',tip:x.note}};}
+    var bookTag=bookMatch?'<span class="book-badge" onclick="event.stopPropagation();toggleItinBook('+i+')" style="margin-left:4px">🎫 예약</span>':'';
+    var costTag='';
+    if(placeMatch&&placeMatch.price){costTag='<span style="display:inline-block;margin-left:4px;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;vertical-align:middle">'+placeMatch.price+'</span>';}
+    h+='<div class="si"><div class="nm">'+x.name+bookTag+costTag+'<br><span class="ne">'+(x.nameEn||'')+'</span></div>';
+    h+='<div class="sm"><span class="tm">'+(x.tm||'')+'</span><span>'+(x.dur||'')+'</span></div>';
+    if(x.note)h+='<div class="nt">'+x.note+'</div>';
+    if(bookMatch&&bookMatch.book){
+      h+='<div class="book-tip" id="ib_'+i+'" style="display:none"><div class="bt-title">🎫 예약 안내</div>';
+      if(bookMatch.book.how)h+='<div>📌 '+bookMatch.book.how+'</div>';
+      if(bookMatch.book.tip)h+='<div>💡 '+bookMatch.book.tip+'</div>';
+      if(bookMatch.book.url)h+='<div style="margin-top:4px"><a href="'+bookMatch.book.url+'" target="_blank">🔗 예약 페이지 열기</a></div>';
+      h+='</div>';
+    }
+    h+='<div class="st-actions">';
+    if(i>0)h+='<button class="sa up" onclick="event.stopPropagation();moveStop('+i+',-1)">↑ 위로</button>';
+    if(i<stops.length-1)h+='<button class="sa down" onclick="event.stopPropagation();moveStop('+i+',1)">↓ 아래</button>';
+    h+='<button class="sa del" onclick="event.stopPropagation();removeStop('+i+')">🗑️ 삭제</button>';
+    h+='</div></div></div>';
+  });
+  h+='<button class="add-stop" onclick="openDayModal()">+ 저장소에서 추가</button>';
+  // Daily cost summary
+  var totalCost=0;var costDetails=[];
+  stops.forEach(function(x){
+    var places=window._places||[];
+    var pm=x.nameEn?places.find(function(p){return p.name===x.nameEn||x.nameEn.indexOf(p.name)>=0||p.name.indexOf(x.nameEn)>=0;}):null;
+    if(pm&&pm.price){
+      var p=pm.price;var est=0;
+      if(p==='무료'||p==='Free')est=0;
+      else if(p.match(/^[₩\d]/)){var m=p.match(/\d+/);if(m)est=parseInt(m[0])*1000;}
+      if(p==='₩')est=10000;else if(p==='₩₩')est=25000;else if(p==='₩₩₩')est=40000;
+      if(est>0){totalCost+=est;costDetails.push(x.name.replace(/[🍽️☕]\s*/g,'')+'~'+Math.round(est/1000)+'천');}
+    }
+  });
+  if(totalCost>0){
+    h+='<div style="margin:10px 0;padding:10px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:11px;line-height:1.6">';
+    h+='<div style="font-weight:700;color:#22c55e;margin-bottom:4px">💰 예상 비용 (1인 기준)</div>';
+    h+='<div style="color:var(--dm)">'+costDetails.join(' · ')+'</div>';
+    h+='<div style="font-weight:700;color:var(--tx);margin-top:4px">합계 ~'+Math.round(totalCost/1000)+'천원/1인 · 3인 ~'+Math.round(totalCost*3/1000)+'천원</div>';
+    h+='</div>';
+  }
+  // Recommended places
+  var dayNum=d.day;
+  var stopNames=stops.map(function(x){return x.nameEn||x.name||'';});
+  var recs=(window._places||[]).filter(function(p){
+    return p.day===dayNum&&!stopNames.find(function(sn){return sn.indexOf(p.name)>=0||p.name.indexOf(sn.replace(/[🍽️☕]\s*/g,''))>=0;});
+  });
+  if(recs.length>0){
+    h+='<div style="margin:10px 0;padding:10px 12px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:8px;font-size:11px;line-height:1.8">';
+    h+='<div style="font-weight:700;color:var(--acc);margin-bottom:6px">💡 이 날 추가하면 좋은 장소</div>';
+    recs.forEach(function(r){
+      var icon=r.cat==='food'?'🍽️':r.cat==='cafe'?'☕':'🏛️';
+      var priceTag=r.price?' <span style="color:#22c55e;font-size:9px">'+r.price+'</span>':'';
+      var bookTag=(r.book&&r.book.required)?' <span style="color:#ef4444;font-size:9px">예약</span>':'';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)">';
+      h+='<div>'+icon+' <b>'+r.name+'</b>'+priceTag+bookTag;
+      if(r.tip)h+='<div style="color:var(--dm);font-size:10px">'+r.tip+'</div>';
+      h+='</div>';
+      h+='<button onclick="event.stopPropagation();addRecToDay(\''+r.id+'\')" style="flex-shrink:0;padding:4px 10px;border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">+ 추가</button>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  document.getElementById('ls').innerHTML=h;
+}
+
+window.toggleItinBook=function(i){var el=document.getElementById('ib_'+i);if(el)el.style.display=el.style.display==='none'?'block':'none';};
+window.pickStop=function(i){
+  sel=sel===i?null:i;renderItinList();
+  if(sel!==null){var x=(window._days[cur].stops||[])[sel];if(x&&x.lat){gmap.panTo({lat:x.lat,lng:x.lng});gmap.setZoom(16);}
+    var el=document.getElementById('s'+sel);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
+};
+window.moveStop=function(idx,dir){
+  var d=window._days[cur];var stops=d.stops||[];
+  var ni=idx+dir;if(ni<0||ni>=stops.length)return;
+  var tmp=stops[idx];stops[idx]=stops[ni];stops[ni]=tmp;
+  stops.forEach((s,i)=>s.order=i);
+  saveDay(d.id||'day'+d.day,d);renderItinList();updateItinMap();
+};
+window.removeStop=function(idx){
+  if(!confirm('일정에서 삭제하시겠어요?'))return;
+  var d=window._days[cur];d.stops.splice(idx,1);
+  d.stops.forEach((s,i)=>s.order=i);
+  saveDay(d.id||'day'+d.day,d);sel=null;renderItinList();updateItinMap();
+};
+window.addRecToDay=function(placeId){
+  var p=(window._places||[]).find(function(x){return x.id===placeId;});
+  if(!p)return;
+  var d=window._days[cur];if(!d)return;
+  var icon=p.cat==='food'?'🍽️ ':p.cat==='cafe'?'☕ ':'';
+  var newStop={order:d.stops.length,cat:p.cat,name:icon+p.name,nameEn:p.name,lat:p.lat,lng:p.lng,tm:'',dur:'60분',note:p.tip||''};
+  d.stops.push(newStop);
+  saveDay(d.id||'day'+d.day,d);renderItinList();updateItinMap();
+};
+
+// ===== MAP =====
+window.initMap=function(){
+  // Temporarily show map div for proper initialization
+  var mw=document.getElementById('mw');
+  var wasHidden=!mw.classList.contains('v');
+  if(wasHidden)mw.style.cssText='display:flex!important;flex-direction:column;position:absolute;left:-9999px;width:100%;height:300px';
+  
+  gmap=new google.maps.Map(document.getElementById('map'),{center:{lat:35.155,lng:129.13},zoom:13,disableDefaultUI:true,zoomControl:true,styles:[{elementType:'geometry',stylers:[{color:'#0a1628'}]},{elementType:'labels.text.stroke',stylers:[{color:'#0a1628'}]},{elementType:'labels.text.fill',stylers:[{color:'#6b8299'}]},{featureType:'water',elementType:'geometry',stylers:[{color:'#0f2540'}]},{featureType:'road',elementType:'geometry',stylers:[{color:'#1a2d4a'}]}]});
+  gIW=new google.maps.InfoWindow();
+  
+  if(wasHidden){setTimeout(function(){mw.style.cssText='';},100);}
+  
+  google.maps.event.addListenerOnce(gmap,'idle',function(){
+    updateItinMap();
+  });
+  loadAll();
+};
+
+function updateItinMap(){
+  if(!gmap)return;
+  gmks.forEach(m=>m.setMap(null));gmks=[];
+  if(gpath)gpath.setMap(null);
+  var d=window._days[cur];if(!d)return;
+  var stops=d.stops||[];
+  var path=[];
+  var bounds=new google.maps.LatLngBounds();
+  stops.forEach(function(x,i){
+    if(!x.lat||!x.lng)return;
+    var pos={lat:x.lat,lng:x.lng};
+    path.push(pos);bounds.extend(pos);
+    var colors={sight:'#3b82f6',food:'#22c55e',cafe:'#ec4899',lodge:'#f59e0b'};
+    var c=colors[x.cat]||'#38bdf8';
+    var mk=new google.maps.Marker({position:pos,map:gmap,label:{text:''+(i+1),color:'#fff',fontSize:'11px',fontWeight:'700'},icon:{path:google.maps.SymbolPath.CIRCLE,scale:14,fillColor:c,fillOpacity:1,strokeColor:'#fff',strokeWeight:2}});
+    mk.addListener('click',function(){
+      sel=i;renderItinList();
+      var card=document.getElementById('mapCard');
+      document.getElementById('mcNum').style.background=c;
+      document.getElementById('mcNum').textContent=i+1;
+      document.getElementById('mcName').textContent=x.name;
+      document.getElementById('mcEn').textContent=x.nameEn||'';
+      var meta='';
+      if(x.tm)meta+='<span class="rt">'+x.tm+'</span>';
+      if(x.dur)meta+='<span class="pr">'+x.dur+'</span>';
+      document.getElementById('mcMeta').innerHTML=meta;
+      document.getElementById('mcNote').textContent=x.note||'';
+      card.classList.add('show');
+    });
+    gmks.push(mk);
+  });
+  if(path.length>1){
+    gpath=new google.maps.Polyline({path:path,geodesic:true,strokeColor:'#38bdf8',strokeOpacity:.6,strokeWeight:3,map:gmap});
+  }
+  if(path.length)gmap.fitBounds(bounds,{top:20,bottom:200,left:20,right:20});
+}
+window.closeCard=function(){document.getElementById('mapCard').classList.remove('show');};
+window.navCard=function(dir){
+  var stops=window._days[cur].stops||[];
+  var next=(sel||0)+dir;
+  if(next<0||next>=stops.length)return;
+  sel=next;
+  gmks[sel]&&google.maps.event.trigger(gmks[sel],'click');
+  gmap.panTo({lat:stops[sel].lat,lng:stops[sel].lng});
+};
+
+// ===== PLACES PANEL =====
+function getFilteredList(){
+  var list=window._places||[];
+  if(pFilter==='food'||pFilter==='cafe'||pFilter==='sight')list=list.filter(p=>p.cat===pFilter);
+  else if(pFilter==='d1')list=list.filter(p=>p.day===1);
+  else if(pFilter==='d2')list=list.filter(p=>p.day===2);
+  else if(pFilter==='unset')list=list.filter(p=>!p.day||p.day===0);
+  return list;
+}
+function renderPlaces(){
+  var list=getFilteredList();
+  var h='';
+  if(!list.length){h='<div class="empty">장소가 없습니다</div>';document.getElementById('plist').innerHTML=h;return;}
+  list.forEach(function(p){
+    var icons={food:'🍽️',cafe:'☕',sight:'🏛️'};
+    var icon=icons[p.cat]||'📍';
+    h+='<div class="pcard'+(p.visited?' visited':'')+'">';
+    h+='<div class="pcard-top"><div class="pcard-icon '+p.cat+'">'+icon+'</div>';
+    h+='<div class="pcard-info"><div class="pcard-name">'+p.name;
+    if(p.book&&p.book.required)h+=' <span class="book-badge" onclick="toggleBookTip(\''+p.id+'\')" style="margin-left:4px">🎫 예약</span>';
+    h+='</div>';
+    h+='<div class="pcard-meta">';
+    if(p.rating)h+='<span style="background:rgba(56,189,248,.12);color:var(--acc)">⭐ '+p.rating+'</span>';
+    if(p.price)h+='<span style="background:rgba(34,197,94,.12);color:var(--gn)">'+p.price+'</span>';
+    if(p.closed)h+='<span style="background:rgba(239,68,68,.12);color:var(--rd)">휴무:'+p.closed+'</span>';
+    h+='</div>';
+    h+='<div style="margin-top:4px">';
+    if(p.day){h+='<span class="day-badge set" onclick="event.stopPropagation();openDaySet(\''+p.id+'\','+p.day+')">D'+p.day+'</span>';}
+    else{h+='<span class="day-badge unset" onclick="event.stopPropagation();openDaySet(\''+p.id+'\',0)">📅</span>';}
+    h+='</div></div></div>';
+    if(p.book&&p.book.required){
+      h+='<div class="book-tip" id="bt_'+p.id+'" style="display:none"><div class="bt-title">🎫 예약 안내</div>';
+      h+='<div>📌 '+p.book.how+'</div>';
+      if(p.book.tip)h+='<div>💡 '+p.book.tip+'</div>';
+      if(p.book.url)h+='<div style="margin-top:4px"><a href="'+p.book.url+'" target="_blank">🔗 예약 페이지 열기</a></div>';
+      h+='</div>';
+    }
+    h+='<div class="pcard-detail">';
+    if(p.menu)h+='<div>🍴 '+p.menu+'</div>';if(p.hours)h+='<div>🕐 '+p.hours+'</div>';if(p.tip)h+='<div>💡 '+p.tip+'</div>';
+    h+='</div><div class="pcard-actions">';
+    h+='<button class="pact visit'+(p.visited?' done':'')+'" onclick="toggleVisit(\''+p.id+'\','+p.visited+')">'+(p.visited?'✅ 완료':'☐ 체크')+'</button>';
+    h+='<button class="pact additin" onclick="openDayPicker(\''+p.id+'\')">📅 일정추가</button>';
+    if(p.lat&&p.lng)h+='<button class="pact mapbtn" onclick="focusPmap('+p.lat+','+p.lng+')">📍</button>';
+    h+='<button class="pact" style="background:rgba(56,189,248,.1);color:var(--acc)" onclick="editPlace(\''+p.id+'\')">✏️</button>';
+    h+='<button class="pact del" onclick="deletePlace(\''+p.id+'\')">🗑️</button>';
+    h+='</div></div>';
+  });
+  document.getElementById('plist').innerHTML=h;
+}
+
+window.toggleBookTip=function(id){var el=document.getElementById('bt_'+id);if(el)el.style.display=el.style.display==='none'?'block':'none';};
+window.pf=function(f,el){
+  pFilter=f;
+  document.querySelectorAll('#pbar .pbtn, #pbar2 .pbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(f==='all')document.querySelector('#pbar .pbtn').classList.add('on');
+  renderPlaces();
+};
+window.pview=function(v){
+  pViewMode=v;
+  document.getElementById('plist').style.display=v==='list'?'block':'none';
+  document.getElementById('pmw').style.display=v==='map'?'flex':'none';
+  document.getElementById('pv1').classList.toggle('on',v==='list');
+  document.getElementById('pv2').classList.toggle('on',v==='map');
+  if(v==='map')updatePmap(getFilteredList());
+};
+
+function updatePmap(list){
+  if(!pMap){
+    pMap=new google.maps.Map(document.getElementById('pmap'),{center:{lat:35.13,lng:129.08},zoom:12,disableDefaultUI:true,zoomControl:true,styles:[{elementType:'geometry',stylers:[{color:'#0a1628'}]},{elementType:'labels.text.stroke',stylers:[{color:'#0a1628'}]},{elementType:'labels.text.fill',stylers:[{color:'#6b8299'}]},{featureType:'water',elementType:'geometry',stylers:[{color:'#0f2540'}]},{featureType:'road',elementType:'geometry',stylers:[{color:'#1a2d4a'}]}]});
+  }
+  pMks.forEach(m=>m.setMap(null));pMks=[];
+  var bounds=new google.maps.LatLngBounds();
+  list.forEach(function(p){
+    if(!p.lat||!p.lng)return;
+    var pos={lat:p.lat,lng:p.lng};bounds.extend(pos);
+    var colors={food:'#22c55e',cafe:'#ec4899',sight:'#3b82f6'};
+    var mk=new google.maps.Marker({position:pos,map:pMap,icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:colors[p.cat]||'#38bdf8',fillOpacity:1,strokeColor:'#fff',strokeWeight:2}});
+    mk.addListener('click',function(){
+      var iw=new google.maps.InfoWindow({content:'<div class="iw"><h3>'+p.name+'</h3>'+(p.menu?'<p>'+p.menu+'</p>':'')+(p.tip?'<p>💡'+p.tip+'</p>':'')+'</div>'});
+      iw.open(pMap,mk);
+    });
+    pMks.push(mk);
+  });
+  if(list.length)pMap.fitBounds(bounds,50);
+}
+window.focusPmap=function(lat,lng){
+  pview('map');
+  setTimeout(function(){pMap.panTo({lat:lat,lng:lng});pMap.setZoom(16);},200);
+};
+
+// DAY assignment
+window.openDaySet=function(id,curDay){
+  var h='<div style="font-size:13px;font-weight:600;margin-bottom:8px">📅 몇일차?</div><div class="day-pick-row">';
+  [1,2].forEach(function(n){
+    h+='<button class="'+(n===curDay?'active':'')+'" onclick="setPlaceDay(\''+id+'\','+n+')">'+n+'</button>';
+  });
+  h+='<button style="width:auto;padding:0 10px" onclick="setPlaceDay(\''+id+'\',0)">✕</button></div>';
+  var cards=document.querySelectorAll('.pcard');
+  var filtered=getFilteredList();
+  var fi=filtered.findIndex(p=>p.id===id);
+  if(fi>=0&&cards[fi]){
+    var existing=cards[fi].querySelector('.day-pick-row');
+    if(existing){existing.parentElement.remove();return;}
+    var div=document.createElement('div');
+    div.style.cssText='padding:6px 0';div.innerHTML=h;
+    cards[fi].querySelector('.pcard-actions').before(div);
+  }
+};
+window.setPlaceDay=function(id,day){
+  var p=window._places.find(x=>x.id===id);
+  if(p){p.day=day;savePlaces();renderPlaces();}
+};
+
+// ===== MODALS =====
+window.openModal=function(){
+  document.getElementById('modalTitle').textContent='장소 추가';
+  document.getElementById('modal').dataset.editId='';
+  ['fCat','fCity','fName','fRating','fPrice','fHours','fClosed','fMenu','fTip','fLat','fLng'].forEach(function(id){
+    var el=document.getElementById(id);if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';
+  });
+  _fDay=0;updateFDayUI();
+  document.getElementById('modal').classList.add('v');
+};
+window.closeModal=function(){document.getElementById('modal').classList.remove('v');};
+window.pickFDay=function(n){_fDay=n;updateFDayUI();};
+function updateFDayUI(){
+  var btns=document.querySelectorAll('#fDayRow button');
+  btns.forEach(function(b,i){b.classList.toggle('active',(i<2&&_fDay===(i+1))||(i===2&&_fDay===0));});
+}
+
+window.recommendDays=function(lat,lng){
+  if(!lat||!lng)return[];
+  var days=window._days||[];
+  var results=[];
+  days.forEach(function(d){
+    var stops=d.stops||[];if(!stops.length)return;
+    var minDist=999;
+    stops.forEach(function(s){
+      if(!s.lat||!s.lng)return;
+      var dlat=lat-s.lat;var dlng=lng-s.lng;
+      var dist=Math.sqrt(dlat*dlat+dlng*dlng)*111;
+      if(dist<minDist)minDist=dist;
+    });
+    if(minDist<5){results.push({day:d.day,title:d.title,sub:d.sub,minDist:Math.round(minDist*100)/100});}
+  });
+  results.sort(function(a,b){return a.minDist-b.minDist;});
+  return results;
+};
+
+window.savePlace=function(){
+  var d={cat:document.getElementById('fCat').value,city:document.getElementById('fCity').value,name:document.getElementById('fName').value.trim(),rating:parseFloat(document.getElementById('fRating').value)||0,price:document.getElementById('fPrice').value,hours:document.getElementById('fHours').value.trim(),closed:document.getElementById('fClosed').value.trim(),menu:document.getElementById('fMenu').value.trim(),tip:document.getElementById('fTip').value.trim(),lat:parseFloat(document.getElementById('fLat').value)||0,lng:parseFloat(document.getElementById('fLng').value)||0,visited:false,createdAt:Date.now()};
+  if(!d.name){alert('이름을 입력하세요');return;}
+  var eid=document.getElementById('modal').dataset.editId;
+  if(eid){var idx=window._places.findIndex(x=>x.id===eid);if(idx>=0){d.id=eid;d.visited=window._places[idx].visited;d.day=_fDay;window._places[idx]=d;}}
+  else{d.id='p'+Date.now();d.day=_fDay;window._places.push(d);}
+  savePlaces();closeModal();loadAll();
+  if(d.lat&&d.lng){
+    var recs=recommendDays(d.lat,d.lng);
+    if(recs.length>0){setTimeout(function(){showDayRecToast(d.id,recs);},300);}
+  }
+};
+
+window.showDayRecToast=function(placeId,recs){
+  var existing=document.getElementById('dayRecToast');if(existing)existing.remove();
+  var div=document.createElement('div');div.id='dayRecToast';
+  div.style.cssText='position:fixed;bottom:16px;left:12px;right:12px;z-index:9999;background:#132038;border:1px solid var(--acc);border-radius:12px;padding:14px 16px;box-shadow:0 4px 24px rgba(0,0,0,.5);animation:fadeIn .3s';
+  var p=(window._places||[]).find(function(x){return x.id===placeId;});
+  var name=p?p.name:'장소';
+  var h='<div style="font-weight:700;color:var(--acc);font-size:13px;margin-bottom:8px">📅 "'+name+'" 추천 일정</div>';
+  recs.forEach(function(r,i){
+    var best=i===0?' style="color:var(--acc);font-weight:700"':'';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)">';
+    h+='<div'+best+'>'+(i===0?'⭐ ':'')+' Day '+r.day+' — '+r.sub+'</div>';
+    h+='<div style="display:flex;gap:4px;align-items:center"><span style="font-size:10px;color:var(--dm)">'+r.minDist+'km</span>';
+    h+='<button onclick="quickSetDay(\''+placeId+'\','+r.day+')" style="padding:3px 10px;border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer">D'+r.day+'</button></div>';
+    h+='</div>';
+  });
+  h+='<div style="text-align:right;margin-top:8px"><button onclick="document.getElementById(\'dayRecToast\').remove()" style="padding:4px 14px;background:rgba(255,255,255,.1);border:none;color:var(--dm);border-radius:6px;font-size:11px;cursor:pointer">닫기</button></div>';
+  div.innerHTML=h;document.body.appendChild(div);
+  setTimeout(function(){var t=document.getElementById('dayRecToast');if(t)t.remove();},15000);
+};
+window.quickSetDay=function(id,day){
+  var p=(window._places||[]).find(function(x){return x.id===id;});
+  if(p){p.day=day;savePlaces();renderPlaces();}
+  var t=document.getElementById('dayRecToast');if(t)t.remove();
+};
+
+window.deletePlace=function(id){if(!confirm('삭제?'))return;window._places=window._places.filter(x=>x.id!==id);savePlaces();loadAll();};
+window.toggleVisit=function(id,cur){var p=window._places.find(x=>x.id===id);if(p){p.visited=!cur;savePlaces();loadAll();}};
+window.editPlace=function(id){
+  var p=(window._places||[]).find(x=>x.id===id);if(!p)return;
+  document.getElementById('modalTitle').textContent='장소 수정';document.getElementById('modal').dataset.editId=id;
+  document.getElementById('fCat').value=p.cat||'food';document.getElementById('fCity').value=p.city||'haeundae';
+  document.getElementById('fName').value=p.name||'';
+  document.getElementById('fRating').value=p.rating||'';document.getElementById('fPrice').value=p.price||'';
+  document.getElementById('fHours').value=p.hours||'';document.getElementById('fClosed').value=p.closed||'';
+  document.getElementById('fMenu').value=p.menu||'';document.getElementById('fTip').value=p.tip||'';
+  document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';
+  _fDay=p.day||0;updateFDayUI();
+  document.getElementById('modal').classList.add('v');
+};
+
+// DAY PICKER for adding to itinerary
+var _addPlaceId='';
+window.openDayPicker=function(id){
+  _addPlaceId=id;
+  var h='';
+  window._days.forEach(function(d){
+    h+='<button onclick="addToDay('+d.day+')"><b>Day '+d.day+'</b><br><span style="font-size:11px;color:var(--dm)">'+d.sub+'</span></button>';
+  });
+  document.getElementById('dayPick').innerHTML=h;
+  document.getElementById('dayModal').classList.add('v');
+};
+window.closeDayModal=function(){document.getElementById('dayModal').classList.remove('v');};
+window.addToDay=function(dayNum){
+  var p=(window._places||[]).find(x=>x.id===_addPlaceId);
+  if(!p)return;
+  var d=window._days.find(x=>x.day===dayNum);if(!d)return;
+  var icon=p.cat==='food'?'🍽️ ':p.cat==='cafe'?'☕ ':'';
+  d.stops.push({order:d.stops.length,cat:p.cat,name:icon+p.name,nameEn:p.name,lat:p.lat,lng:p.lng,tm:'',dur:'60분',note:p.tip||''});
+  saveDay(d.id||'day'+d.day,d);
+  closeDayModal();
+  cur=window._days.indexOf(d);
+  renderDays();renderItinList();updateItinMap();
+  mainTab('itin');
+};
+window.openDayModal=function(){
+  var h='';
+  var places=window._places||[];
+  var d=window._days[cur];if(!d)return;
+  var dayPlaces=places.filter(p=>p.day===d.day);
+  if(!dayPlaces.length){alert('저장소에 Day '+d.day+' 장소가 없습니다.\n저장소 탭에서 장소를 추가하세요!');return;}
+  dayPlaces.forEach(function(p){
+    var icon=p.cat==='food'?'🍽️':p.cat==='cafe'?'☕':'🏛️';
+    h+='<button onclick="addToDay('+d.day+');_addPlaceId=\''+p.id+'\'" style="text-align:left">'+icon+' <b>'+p.name+'</b><br><span style="font-size:11px;color:var(--dm)">'+(p.tip||'')+'</span></button>';
+  });
+  document.getElementById('dayPick').innerHTML=h;
+  document.getElementById('dayModal').classList.add('v');
+};
+
+// EXPORT
+window.openExport=function(){
+  document.getElementById('expDay').textContent=window._days[cur].day;
+  document.getElementById('exportModal').classList.add('v');
+};
+window.closeExport=function(){document.getElementById('exportModal').classList.remove('v');};
+window.openInGmaps=function(type){
+  var places=[];
+  if(type==='day'){var d=window._days[cur];places=(d.stops||[]).filter(s=>s.lat&&s.lng);}
+  else{places=(window._places||[]).filter(p=>p.cat===type&&p.lat&&p.lng);}
+  if(!places.length){alert('장소가 없습니다');return;}
+  if(places.length===1){window.open('https://www.google.com/maps/search/?api=1&query='+places[0].lat+','+places[0].lng);return;}
+  var origin=places[0].lat+','+places[0].lng;
+  var dest=places[places.length-1].lat+','+places[places.length-1].lng;
+  var waypoints=places.slice(1,-1).map(p=>p.lat+','+p.lng).join('|');
+  var url='https://www.google.com/maps/dir/?api=1&origin='+origin+'&destination='+dest+(waypoints?'&waypoints='+waypoints:'')+'&travelmode=walking';
+  window.open(url);
+  closeExport();
+};
+
+// Google Places Autocomplete
+function initAutocomplete(){
+  if(typeof google==='undefined'||!google.maps||!google.maps.places)return;
+  var input=document.getElementById('fSearch');
+  var ac=new google.maps.places.Autocomplete(input,{types:['establishment'],componentRestrictions:{country:'kr'},fields:['name','geometry','formatted_address','rating','opening_hours','price_level']});
+  ac.addListener('place_changed',function(){
+    var place=ac.getPlace();if(!place||!place.geometry)return;
+    document.getElementById('fName').value=place.name||'';
+    document.getElementById('fLat').value=place.geometry.location.lat().toFixed(7);
+    document.getElementById('fLng').value=place.geometry.location.lng().toFixed(7);
+    if(place.rating)document.getElementById('fRating').value=place.rating;
+    if(place.opening_hours&&place.opening_hours.weekday_text){
+      var today=place.opening_hours.weekday_text[0]||'';
+      var match=today.match(/\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2}/);
+      if(match)document.getElementById('fHours').value=match[0].replace(/\s/g,'');
+    }
+  });
+}
+
+// LOAD
+window.addEventListener('DOMContentLoaded',function(){loadAll();});
+</script>
+<script>
+function loadGMaps(){
+  var s=document.createElement('script');
+  s.src='https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Zq_g4MZmeTHi0hPIbQ5fp8-4P_nVVAY&libraries=places&callback=onGMapsLoaded';
+  s.async=true;s.defer=true;document.head.appendChild(s);
+}
+window.onGMapsLoaded=function(){initMap();initAutocomplete();};
+loadGMaps();
+</script>
+</body>
+</html>
