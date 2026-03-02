@@ -433,14 +433,18 @@ window.moveStop=function(idx,dir){
   var d=window._days[cur];var stops=d.stops||[];
   var ni=idx+dir;if(ni<0||ni>=stops.length)return;
   var tmp=stops[idx];stops[idx]=stops[ni];stops[ni]=tmp;
-  stops.forEach((s,i)=>s.order=i);
-  saveDay(d.id||'day'+d.day,d);renderItinList();updateItinMap();
+  stops.forEach(function(s,i){s.order=i;});
+  lsSet(LS_DAYS,window._days);
+  renderItinList();try{updateItinMap();}catch(e){}
 };
 window.removeStop=function(idx){
-  if(!confirm('일정에서 삭제하시겠어요?'))return;
-  var d=window._days[cur];d.stops.splice(idx,1);
-  d.stops.forEach((s,i)=>s.order=i);
-  saveDay(d.id||'day'+d.day,d);sel=null;renderItinList();updateItinMap();
+  var d=window._days[cur];if(!d||!d.stops||idx<0||idx>=d.stops.length)return;
+  d.stops.splice(idx,1);
+  d.stops.forEach(function(s,i){s.order=i;});
+  lsSet(LS_DAYS,window._days);
+  sel=null;
+  renderItinList();
+  try{updateItinMap();}catch(e){}
 };
 window.addRecToDay=function(placeId){
   var p=(window._places||[]).find(function(x){return x.id===placeId;});
